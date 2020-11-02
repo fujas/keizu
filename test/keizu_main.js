@@ -14,7 +14,9 @@ function getNewID() {
 
 // 性別決定関数
 function defineMale() {
-  return true;
+  let percent = 50;     // 男が生まれる割合（％）
+  let retVal = (percent > Math.random() * 100) ? true : false;
+  return retVal;
 }
 
 // 子供の数の決定関数
@@ -32,16 +34,26 @@ let Person = (function () {
       return new Person();
     }
     // メンバ変数
-    this.parent = parent;           // 父親へのポインタ
     this.id = id;                   // 表示制御用ID
     this.generation = generation;   // 世代。起点以前なら負の数になる。
     this.male = male;               // 性別(trueで男)
+    this.king = false;              // 王位を継いだらtrue
+    // メンバ変数（リンク）
+    this.parent = parent;           // 父親へのポインタ
     this.child = [];                // 子供へのポインタ配列
     // メンバ変数（内部フラグ）
     this.childCreated = false;      // 子供を全部作ったらtrue
-    this.noChild = false;           // 子孫が途絶えることが確定したらtrue
+    this.parent = parent;           // 父親へのポインタ
+    this.noFamily = false;          // 子孫が途絶えることが確定したらtrue
   }
   let p = Person.prototype;
+
+  // Getter
+  p.getParent = function () { return this.parent; }
+
+  // Setter
+  p.setKing = function () { this.king = true; }
+  p.setNoFamily = function () { this.noFamily = true; }
 
   // 子供生成関数
   p.createChildren = function () {
@@ -59,21 +71,23 @@ let Person = (function () {
   }
 
   // 親生成関数
-  p.createParent = function(){
+  p.createParent = function () {
     let gene = this.generation - 1;
-    let parent= new Person(null, getNewID(), gene, true); // １世代前の男として生成
-    parent.child[0] = this;     // 必ず自分を子供に設定
-    parent.createChildren();    // 自分以外の子供を生成
+    let parent = new Person(null, getNewID(), gene, true); // １世代前の男として生成
+    parent.child[0] = this;     // 自分を子供に設定
+    this.parent = parent;       // 自分の親を設定
+    parent.createChildren();    // 自分の兄弟姉妹を生成
     return parent;
   }
 
   // 世継ぎ取得関数
-  p.getPrince = function(){
+  p.getPrince = function (onlyCandidate) {
     // 子供を作っていなければ生成
     this.createChildren();
     // 子供に男がいればそれを返す
-    for (let child of this.child){
-      if (child.male){
+    for (let child of this.child) {
+      // 候補フラグがtrueなら、子孫が途絶えていない男性だけを返す
+      if (child.male && ((!child.noFamily) || (!onlyCandidate))) {
         return child;
       }
     }
@@ -84,57 +98,126 @@ let Person = (function () {
   return Person;
 })();
 
+
 // ********** １世代先の世継ぎを生成する関数群 **********
 
-function createPrince(person){
-  person.createChildren();
-  let prince = person.getPrince();
-  if (prince == null){
-
-
-
-    // backTrackPrince(person, person.generation + 1);
-
-
-
+// 生成した最も前の世代の人物を返す
+function findRoot(person) {
+  let rootParent = person;
+  while (rootParent.getParent() != null) {
+    rootParent = rootParent.getParent();
   }
+  return rootParent;
+}
+
+// 子孫が途絶えているか不明な親までさかのぼる（必要なら親を生成）
+function backTrackPrince(person) {
+  let parent = person;
+  do {
+    let prev = parent;
+    parent = parent.parent;
+    if (parent == null) {
+      // 親が未定義なら生成
+      parent = prev.createParent();
+    }
+  } while (parent.noFamily == true);  // 子孫が途絶えている親ならさらに遡る
+
+  return parent;
+}
+
+// 指定の世代まで世継ぎを作る
+function forwardTrackPrince(person, generation) {
+
+  let prince = null;
+  let parent = person;
+  do {
+    // 子孫が途絶えていない男子を探す
+    parent.createChildren();
+    prince = parent.getPrince(true);
+
+    // 男子がいないとき
+    if (prince == null) {
+      parent.setNoFamily(); // 断絶フラグを設定
+      // 親をさかのぼって男子とする
+      prince = backTrackPrince(parent);
+    }
+    // 先祖が遠すぎて断念したときはnullを返す
+    if (prince == null) {
+      return null;
+    }
+
+    // 規定の世代まで王子を生成
+    parent = prince;
+  } while (prince.generation < generation);
+
   return prince;
 }
 
 
-
-
 // ********** 表示関数 **********
 
-// 表示
-function display() {
-  let arr = [];
-  let id = 1;
-  let label = "Node 10";
-  arr[0] = { id: id, label: label };
-  arr[1] = { id: 2, label: "Node 20" };
-  var nodes = new vis.DataSet(arr);
+// ノードを一個生成
+function createNode(person, nodeArr) {
+  let col = person.male ? "#bbccff" : "#ffcccc";
+  col = person.king ? "#8888ff" : col;
+  nodeArr.push({ id: person.id, label: "node", level: person.generation, color: col });
+}
+// エッジを一個生成
+function createEdge(parent, child, edgeArr) {
+  edgeArr.push({ from: parent.id, to: child.id });
+}
 
-  // create an array with edges
-  var edges = new vis.DataSet([
-    { from: 1, to: 2 },
-  ]);
+// ノードとエッジの取得関数
+function getNodeAndEdgeRecurs(person, nodeArr, edgeArr, top) {
+  // 最初だけ自分のノードを作成
+  if (top) {
+    createNode(person, nodeArr);
+  }
+  // 子のノードを作り、親子のエッジを作成
+  for (let child of person.child) {
+    createNode(child, nodeArr);
+    createEdge(person, child, edgeArr);
+  }
+  // 各子に対して再帰呼び出し
+  for (let child of person.child) {
+    getNodeAndEdgeRecurs(child, nodeArr, edgeArr, false);
+  }
+}
 
-  // create a network
+// 表示メイン
+function displayMain(person) {
+
+  // ツリー構造から配列データを生成
+  let nodeArr = [];
+  let edgeArr = [];
+  let rootParent = findRoot(person);
+  getNodeAndEdgeRecurs(rootParent, nodeArr, edgeArr, true)
+
+  // vis.js にデータを渡す
   var container = document.getElementById("mynetwork");
   var data = {
-    nodes: nodes,
-    edges: edges,
+    nodes: nodeArr,
+    edges: edgeArr,
   };
-  var options = {};
+  var options = { layout: { hierarchical: true } };
   var network = new vis.Network(container, data, options);
 }
 
+
 // ********** メイン **********
 
+resetNewID();
 let origin = new Person(null, getNewID(), 1, true);
-origin.createChildren();
-origin.createParent();
+origin.setKing();
 
-display();
+let person = origin;
+for (let i = 0; i < 10; i++) {
+  person = forwardTrackPrince(person, person.generation + 1);
+  if (person == null) {
+    break;
+  }
+  person.setKing();
+}
+
+displayMain(origin);
 
