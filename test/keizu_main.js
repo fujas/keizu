@@ -81,13 +81,13 @@ let Person = (function () {
   }
 
   // 世継ぎ取得関数
-  p.getPrince = function (onlyCandidate) {
+  p.getPrince = function () {
     // 子供を作っていなければ生成
     this.createChildren();
     // 子供に男がいればそれを返す
     for (let child of this.child) {
-      // 候補フラグがtrueなら、子孫が途絶えていない男性だけを返す
-      if (child.male && ((!child.noFamily) || (!onlyCandidate))) {
+      // 子孫が途絶えていない男だけを探す
+      if (child.male && (!child.noFamily)) {
         return child;
       }
     }
@@ -133,7 +133,7 @@ function forwardTrackPrince(person, generation) {
   do {
     // 子孫が途絶えていない男子を探す
     parent.createChildren();
-    prince = parent.getPrince(true);
+    prince = parent.getPrince();
 
     // 男子がいないとき
     if (prince == null) {
@@ -206,18 +206,22 @@ function displayMain(person) {
 
 // ********** メイン **********
 
+// 始祖を生成
 resetNewID();
 let origin = new Person(null, getNewID(), 1, true);
 origin.setKing();
 
+// １代ずつ子孫を生成（TODO: 1度のforward呼び出しでkingフラグを付けられないか？）
 let person = origin;
 for (let i = 0; i < 10; i++) {
   person = forwardTrackPrince(person, person.generation + 1);
   if (person == null) {
     break;
   }
-  person.setKing();
+  person.setKing(); // kingフラグは表示にのみ使用
 }
 
+// ツリーを表示
 displayMain(origin);
 
+// TODO: 枝かり表示、代の表示、GUI、複雑時のストップ機能、止まる症状の調査
