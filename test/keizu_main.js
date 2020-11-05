@@ -1,5 +1,33 @@
 // 系図作成プログラム
 
+// ********** 乱数 **********
+let Random = (function () {
+  // コンストラクタ
+  let Random = function (seed) {
+    if (!(this instanceof Random)) {
+      return new Random();
+    }
+    this.x = 345623457;
+    this.y = 362436069;
+    this.z = 521288629;
+    this.w = seed;
+  }
+  let r = Random.prototype;
+  
+  // XorShift
+  r.get = function() {
+    let t = this.x ^ (this.x << 11);
+    this.x = this.y; this.y = this.z; this.z = this.w;
+    this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8)); 
+    const limit = 10000;
+    let random = (Math.abs(this.w) % limit) / limit;
+    return random;
+  }
+
+  return Random;
+})();
+let g_myRnd = new Random(2);
+
 // ********** 数値制御関数 **********
 
 // 新規人物のIDを割り振る関数
@@ -15,7 +43,7 @@ function getNewID() {
 // 性別決定関数
 function defineMale() {
   let percent = 50;     // 男が生まれる割合（％）
-  let retVal = (percent > Math.random() * 100) ? true : false;
+  let retVal = (percent > g_myRnd.get() * 100) ? true : false;
   return retVal;
 }
 
