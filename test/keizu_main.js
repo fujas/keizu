@@ -2,11 +2,11 @@
 
 // ********** パラメーター **********
 function Params(){
-  this.seed = 2;          // 乱数シード
+  this.seed = 7;          // 乱数シード
   this.numChild = 2;      // 子供の数
   this.maleRatio = 50;    // 男子が生まれる割合％
   this.generation = 10;   // 生成する世代の数
-  this.hideBranch = false; // 表示時に直系以外を隠す
+  this.hideBranch = true; // 表示時に直系以外を隠す
 }
 let g_Params = new Params();
 
@@ -59,7 +59,7 @@ function defineMale() {
 
 // 子供の数の決定関数
 function defineNumChild() {
-  return 2;
+  return g_Params.numChild;
 }
 
 // ********** 人物クラス **********
@@ -182,6 +182,10 @@ function backTrackPrince(person) {
     if (parent == null) {
       // 親が未定義なら生成
       parent = prev.createParent();
+      // 親が王やその祖先であれば王の祖先フラグを付ける
+      if (prev.king != KingKind.Normal){
+        parent.setKing(KingKind.KingParent);
+      }
     }
   } while (parent.noFamily == true);  // 子孫が途絶えている親ならさらに遡る
 
@@ -242,7 +246,7 @@ function createTree() {
 function createNode(person, nodeArr) {
   let col = person.male ? "#bbccff" : "#ffcccc";
   col = (person.king == KingKind.King) ? "#8888ff" : col;
-  col = (person.king == KingKind.KingParent) ? "#88ccff" : col;
+  col = (person.king == KingKind.KingParent) ? "#88ff88" : col;
   nodeArr.push({ id: person.id, label: "node", level: person.generation, color: col });
 }
 // エッジを一個生成
