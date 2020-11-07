@@ -1,7 +1,17 @@
-// 系図作成プログラム
+// 系図作成プログラム (C)Github/fujas 2020
 
-// ********** 乱数 **********
-// 参考："JavaScriptで再現性のある乱数を生成する + 指定した範囲の乱数を生成する"
+// ********** パラメーター **********
+function Params(){
+  this.seed = 2;          // 乱数シード
+  this.numChild = 2;      // 子供の数
+  this.maleRatio = 50;    // 男子が生まれる割合％
+  this.generation = 10;   // 生成する世代の数
+  this.hideBranch = false; // 表示時に直系以外を隠す
+}
+let g_Params = new Params();
+
+// ********** シード付き乱数 **********
+// "JavaScriptで再現性のある乱数を生成する + 指定した範囲の乱数を生成する" を参考にさせていただきました。
 let Random = (function () {
   // コンストラクタ
   let Random = function (seed) {
@@ -14,12 +24,12 @@ let Random = (function () {
     this.w = seed;
   }
   let r = Random.prototype;
-  
-  // XorShiftで乱数発生
-  r.get = function() {
+
+  // XorShiftで0-1の乱数発生
+  r.get = function () {
     let t = this.x ^ (this.x << 11);
     this.x = this.y; this.y = this.z; this.z = this.w;
-    this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8)); 
+    this.w = (this.w ^ (this.w >>> 19)) ^ (t ^ (t >>> 8));
     const limit = 10000;
     let random = (Math.abs(this.w) % limit) / limit;
     return random;
@@ -27,7 +37,7 @@ let Random = (function () {
 
   return Random;
 })();
-let g_myRnd = new Random(2);
+let g_myRnd = new Random(g_Params.seed);
 
 // ********** 数値制御関数 **********
 
@@ -43,8 +53,7 @@ function getNewID() {
 
 // 性別決定関数
 function defineMale() {
-  let percent = 50;     // 男が生まれる割合（％）
-  let retVal = (percent > g_myRnd.get() * 100) ? true : false;
+  let retVal = (g_Params.maleRatio > g_myRnd.get() * 100) ? true : false;
   return retVal;
 }
 
@@ -54,7 +63,13 @@ function defineNumChild() {
 }
 
 // ********** 人物クラス **********
-
+// 表示枝刈用フラグ
+const KingKind = {
+  Normal: 0,       // 普通の人
+  KingParent: 1,   // 王ではないがその先祖の男
+  King: 2          // 王
+}
+// 人物クラス
 let Person = (function () {
 
   // コンストラクタ
@@ -66,13 +81,12 @@ let Person = (function () {
     this.id = id;                   // 表示制御用ID
     this.generation = generation;   // 世代。起点以前なら負の数になる。
     this.male = male;               // 性別(trueで男)
-    this.king = false;              // 王位を継いだらtrue
+    this.king = KingKind.Normal;    // 表示用の王かどうかのフラグ
     // メンバ変数（リンク）
     this.parent = parent;           // 父親へのポインタ
     this.child = [];                // 子供へのポインタ配列
     // メンバ変数（内部フラグ）
     this.childCreated = false;      // 子供を全部作ったらtrue
-    this.parent = parent;           // 父親へのポインタ
     this.noFamily = false;          // 子孫が途絶えることが確定したらtrue
   }
   let p = Person.prototype;
@@ -81,7 +95,7 @@ let Person = (function () {
   p.getParent = function () { return this.parent; }
 
   // Setter
-  p.setKing = function () { this.king = true; }
+  p.setKing = function (kind) { this.king = kind; }
   p.setNoFamily = function () { this.noFamily = true; }
 
   // 子供生成関数
@@ -130,6 +144,26 @@ let Person = (function () {
 
 // ********** １世代先の世継ぎを生成する関数群 **********
 
+// 王の先祖にフラグを付ける
+function setFlagToKingParents(king) {
+  // kingが王であるかチェック。
+  if (king.king != KingKind.King) {
+    return;
+  }
+
+  let parent = king;
+  while (1) {
+    // 親がいない、またはすでに王か王の祖先なら処理終了。
+    parent = parent.getParent();
+    if (parent == null || parent.king != KingKind.Normal) {
+      return;
+    }
+    // 王の先祖フラグを付ける。
+    parent.king = KingKind.KingParent;
+
+  }
+}
+
 // 生成した最も前の世代の人物を返す
 function findRoot(person) {
   let rootParent = person;
@@ -167,7 +201,7 @@ function forwardTrackPrince(person, generation) {
     // 男子がいないとき
     if (prince == null) {
       parent.setNoFamily(); // 断絶フラグを設定
-      // 親をさかのぼって男子とする
+      // 親をさかのぼった男子を取得
       prince = backTrackPrince(parent);
     }
     // 先祖が遠すぎて断念したときはnullを返す
@@ -182,13 +216,33 @@ function forwardTrackPrince(person, generation) {
   return prince;
 }
 
+// 系図を作成
+function createTree() {
+  // 始祖を生成
+  resetNewID();
+  let origin = new Person(null, getNewID(), 1, true);
+  origin.setKing(KingKind.King);
+
+  // １代ずつ子孫を生成（TODO: 1度のforward呼び出しでkingフラグを付けられないか？）
+  let person = origin;
+  for (let i = 0; i < g_Params.generation - 1; i++) {
+    person = forwardTrackPrince(person, person.generation + 1);
+    if (person == null) {
+      break;
+    }
+    person.setKing(KingKind.King);  // 王フラグを設定
+    setFlagToKingParents(person);   // 王の先祖にフラグを設定
+  }
+  return origin;
+}
 
 // ********** 表示関数 **********
 
 // ノードを一個生成
 function createNode(person, nodeArr) {
   let col = person.male ? "#bbccff" : "#ffcccc";
-  col = person.king ? "#8888ff" : col;
+  col = (person.king == KingKind.King) ? "#8888ff" : col;
+  col = (person.king == KingKind.KingParent) ? "#88ccff" : col;
   nodeArr.push({ id: person.id, label: "node", level: person.generation, color: col });
 }
 // エッジを一個生成
@@ -204,12 +258,16 @@ function getNodeAndEdgeRecurs(person, nodeArr, edgeArr, top) {
   }
   // 子のノードを作り、親子のエッジを作成
   for (let child of person.child) {
-    createNode(child, nodeArr);
-    createEdge(person, child, edgeArr);
+    if (!g_Params.hideBranch || child.king != KingKind.Normal) {
+      createNode(child, nodeArr);
+      createEdge(person, child, edgeArr);
+    }
   }
   // 各子に対して再帰呼び出し
   for (let child of person.child) {
-    getNodeAndEdgeRecurs(child, nodeArr, edgeArr, false);
+    if (!g_Params.hideBranch || child.king != KingKind.Normal) {
+      getNodeAndEdgeRecurs(child, nodeArr, edgeArr, false);
+    }
   }
 }
 
@@ -235,20 +293,8 @@ function displayMain(person) {
 
 // ********** メイン **********
 
-// 始祖を生成
-resetNewID();
-let origin = new Person(null, getNewID(), 1, true);
-origin.setKing();
-
-// １代ずつ子孫を生成（TODO: 1度のforward呼び出しでkingフラグを付けられないか？）
-let person = origin;
-for (let i = 0; i < 10; i++) {
-  person = forwardTrackPrince(person, person.generation + 1);
-  if (person == null) {
-    break;
-  }
-  person.setKing(); // kingフラグは表示にのみ使用
-}
+// ツリーを生成
+let origin = createTree();
 
 // ツリーを表示
 displayMain(origin);
