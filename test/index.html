@@ -13,7 +13,32 @@
   </head>
 
   <body>
+    <div>
+      <label for="i_numChild">子供の数</label>
+      <input type="number" id="i_numChild">
+    </div>
+    <div>
+      <label for="i_maleRatio">男子の割合(％)</label>
+      <input type="number" id="i_maleRatio">
+    </div>
+    <div>
+      <label for="i_generation">生成する世代(2～30)</label>
+      <input type="number" id="i_generation">
+    </div>
+    <div>
+      <label for="i_seed">生成パターン(1～10000)</label>
+      <input type="number" id="i_seed">
+    </div>
+    <div>
+      <label for="i_showBranch">直系以外は隠す</label>
+      <input type="checkbox" id="i_showBranch">
+    </div>
+    <div>
+      <input type="button" value="系図更新" id="i_refresh">
+    </div>
+
     <div id="mynetwork"></div>
     <script type="text/javascript" src="keizu_main.js"></script>
+  
   </body>
 </html>
