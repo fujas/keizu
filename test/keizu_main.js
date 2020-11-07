@@ -1,20 +1,21 @@
 // 系図作成プログラム
 
 // ********** 乱数 **********
+// 参考："JavaScriptで再現性のある乱数を生成する + 指定した範囲の乱数を生成する"
 let Random = (function () {
   // コンストラクタ
   let Random = function (seed) {
     if (!(this instanceof Random)) {
       return new Random();
     }
-    this.x = 345623457;
+    this.x = 123456789;
     this.y = 362436069;
     this.z = 521288629;
     this.w = seed;
   }
   let r = Random.prototype;
   
-  // XorShift
+  // XorShiftで乱数発生
   r.get = function() {
     let t = this.x ^ (this.x << 11);
     this.x = this.y; this.y = this.z; this.z = this.w;
@@ -252,4 +253,4 @@ for (let i = 0; i < 10; i++) {
 // ツリーを表示
 displayMain(origin);
 
-// TODO: 枝かり表示、代の表示、GUI、複雑時のストップ機能、止まる症状の調査
+// TODO: 枝かり表示、代の表示、GUI、複雑時のストップ機能
