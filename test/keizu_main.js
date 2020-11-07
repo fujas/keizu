@@ -5,7 +5,7 @@ function Params(){
   this.seed = 7;          // 乱数シード
   this.numChild = 2;      // 子供の数
   this.maleRatio = 50;    // 男子が生まれる割合％
-  this.generation = 10;   // 生成する世代の数
+  this.generation = 30;   // 生成する世代の数
   this.hideBranch = true; // 表示時に直系以外を隠す
 }
 let g_Params = new Params();
@@ -160,7 +160,6 @@ function setFlagToKingParents(king) {
     }
     // 王の先祖フラグを付ける。
     parent.king = KingKind.KingParent;
-
   }
 }
 
@@ -227,7 +226,7 @@ function createTree() {
   let origin = new Person(null, getNewID(), 1, true);
   origin.setKing(KingKind.King);
 
-  // １代ずつ子孫を生成（TODO: 1度のforward呼び出しでkingフラグを付けられないか？）
+  // １代ずつ子孫を生成（1度のforward呼び出しでもできそうだが、処理を簡潔にするため分ける）
   let person = origin;
   for (let i = 0; i < g_Params.generation - 1; i++) {
     person = forwardTrackPrince(person, person.generation + 1);
@@ -244,10 +243,13 @@ function createTree() {
 
 // ノードを一個生成
 function createNode(person, nodeArr) {
+  // 色
   let col = person.male ? "#bbccff" : "#ffcccc";
   col = (person.king == KingKind.King) ? "#8888ff" : col;
   col = (person.king == KingKind.KingParent) ? "#88ff88" : col;
-  nodeArr.push({ id: person.id, label: "node", level: person.generation, color: col });
+  // 文字（王にのみ世代の数を表記）
+  let str = (person.king == KingKind.King) ? "  " + String(person.generation) + "  " : "";
+  nodeArr.push({ id: person.id, label: str, level: person.generation, color: col });
 }
 // エッジを一個生成
 function createEdge(parent, child, edgeArr) {
@@ -303,4 +305,4 @@ let origin = createTree();
 // ツリーを表示
 displayMain(origin);
 
-// TODO: 枝かり表示、代の表示、GUI、複雑時のストップ機能
+// TODO: GUI、複雑時のストップ機能
