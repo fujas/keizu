@@ -1,12 +1,13 @@
 // 系図作成プログラム (C)Github/fujas 2020
 
 // ********** パラメーター **********
-function Params(){
-  this.seed = 7;          // 乱数シード
-  this.numChild = 2;      // 子供の数
-  this.maleRatio = 50;    // 男子が生まれる割合％
-  this.generation = 30;   // 生成する世代の数
-  this.hideBranch = true; // 表示時に直系以外を隠す
+function Params() {
+  // 値はgetParams() で取得
+  this.seed = 1;          // 乱数シード
+  this.numChild = 1;      // 子供の数
+  this.maleRatio = 1;    // 男子が生まれる割合％
+  this.generation = 1;   // 生成する世代の数
+  this.hideBranch = false; // 表示時に直系以外を隠す
 }
 let g_Params = new Params();
 
@@ -37,7 +38,11 @@ let Random = (function () {
 
   return Random;
 })();
-let g_myRnd = new Random(g_Params.seed);
+let g_myRnd = new Random(1);
+
+function resetRnd(){
+  g_myRnd = new Random(g_Params.seed);
+}
 
 // ********** 数値制御関数 **********
 
@@ -181,7 +186,7 @@ function backTrackPrince(person) {
       // 親が未定義なら生成
       parent = prev.createParent();
       // 親が王やその祖先であれば王の祖先フラグを付ける
-      if (prev.king != KingKind.Normal){
+      if (prev.king != KingKind.Normal) {
         parent.setKing(KingKind.KingParent);
       }
     }
@@ -247,7 +252,7 @@ function createNode(person, nodeArr) {
   col = (person.king == KingKind.King) ? "#8888ff" : col;
   col = (person.king == KingKind.KingParent) ? "#88ff88" : col;
   // 文字（王にのみ世代の数を表記）
-  let str = (person.king == KingKind.King) ? "  " + String(person.generation) + "  " : "";
+  let str = (person.king == KingKind.King) ? "  " + String(person.generation + 200) + "  " : "";
   nodeArr.push({ id: person.id, label: str, level: person.generation, color: col });
 }
 // エッジを一個生成
@@ -295,13 +300,49 @@ function displayMain(person) {
   var network = new vis.Network(container, data, options);
 }
 
+// ********** イベント処理 **********
+
+// ツリーの生成と表示
+function createAndDisplayTree() {
+  // 乱数をseedで初期化
+  resetRnd();
+  // ツリーを生成
+  let origin = createTree();
+
+//  for (i = 0; i < 10000; i++){
+//    createTree();
+//  }
+  // ツリーを表示
+  displayMain(origin);
+}
+
+// パラメータの取得
+function getParams() {
+  g_Params.numChild = Number($("#i_numChild").val(), 10);
+  g_Params.maleRatio = Number($("#i_maleRatio").val(), 10);
+  g_Params.generation = parseInt($("#i_generation").val(), 10);
+  g_Params.seed = parseInt($("#i_seed").val(), 10);
+  g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
+}
+
+// イベント関数の登録
+function applyEventFunc() {
+
+  // 更新ボタン
+  $(document).on("click", "#i_refresh", function () {
+    getParams();
+    createAndDisplayTree();
+  });
+
+}
 
 // ********** メイン **********
 
-// ツリーを生成
-let origin = createTree();
+// イベント処理関数を登録
+applyEventFunc();
+// パラメータ初期値をhtmlから取得
+getParams();
+// ツリーの生成と表示
+createAndDisplayTree();
 
-// ツリーを表示
-displayMain(origin);
-
-// TODO: GUI、複雑時のストップ機能
+// TODO: 複雑時のストップ機能
