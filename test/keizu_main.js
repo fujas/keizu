@@ -1,15 +1,27 @@
 // 系図作成プログラム (C)Github/fujas 2020
+//
+// 王家を男子で継承するときの系図を、指定の条件でシミュレーションして作図します。
+// 系図の起点は「未来の架空の王」であり、その王まで同じ条件で継承されたものと仮定します。
+//
 
 // ********** パラメーター **********
+
+// 生成パラメーター
 function Params() {
   // 値はgetParams() で取得
   this.seed = 1;          // 乱数シード
   this.numChild = 1;      // 子供の数
-  this.maleRatio = 1;    // 男子が生まれる割合％
-  this.generation = 1;   // 生成する世代の数
+  this.maleRatio = 1;     // 男子が生まれる割合％
+  this.generation = 1;    // 生成する世代の数
+  this.ancLimit = 1;      // 先祖を遡る世代の上限（父なら１、祖父なら２）
   this.hideBranch = false; // 表示時に直系以外を隠す
 }
 let g_Params = new Params();
+
+// 生成情報パラメーター
+function TreeStat(){
+  this.success = true;
+}
 
 // ********** シード付き乱数 **********
 // "JavaScriptで再現性のある乱数を生成する + 指定した範囲の乱数を生成する" を参考にさせていただきました。
@@ -177,9 +189,14 @@ function findRoot(person) {
 }
 
 // 子孫が途絶えているか不明な親までさかのぼる（必要なら親を生成）
-function backTrackPrince(person) {
+function backTrackPrince(person, targetGeneration) {
   let parent = person;
   do {
+    // 遡る限度に達していたらnullを返す
+    if (parent.generation <= targetGeneration - g_Params.ancLimit){
+      return null;
+    }
+    // 1世代遡る
     let prev = parent;
     parent = parent.parent;
     if (parent == null) {
@@ -195,11 +212,12 @@ function backTrackPrince(person) {
   return parent;
 }
 
-// 指定の世代まで世継ぎを作る
-function forwardTrackPrince(person, generation) {
+// 1世代先の世継ぎを作る
+function forwardTrackPrince(person) {
 
   let prince = null;
   let parent = person;
+  let targetGeneration = person.generation + 1;
   do {
     // 子孫が途絶えていない男子を探す
     parent.createChildren();
@@ -209,7 +227,7 @@ function forwardTrackPrince(person, generation) {
     if (prince == null) {
       parent.setNoFamily(); // 断絶フラグを設定
       // 親をさかのぼった男子を取得
-      prince = backTrackPrince(parent);
+      prince = backTrackPrince(parent, targetGeneration);
     }
     // 先祖が遠すぎて断念したときはnullを返す
     if (prince == null) {
@@ -218,13 +236,13 @@ function forwardTrackPrince(person, generation) {
 
     // 規定の世代まで王子を生成
     parent = prince;
-  } while (prince.generation < generation);
+  } while (prince.generation < targetGeneration);
 
   return prince;
 }
 
 // 系図を作成
-function createTree() {
+function createTree(stat) {
   // 始祖を生成
   resetNewID();
   let origin = new Person(null, getNewID(), 1, true);
@@ -233,8 +251,9 @@ function createTree() {
   // １代ずつ子孫を生成（1度のforward呼び出しでもできそうだが、処理を簡潔にするため分ける）
   let person = origin;
   for (let i = 0; i < g_Params.generation - 1; i++) {
-    person = forwardTrackPrince(person, person.generation + 1);
+    person = forwardTrackPrince(person);
     if (person == null) {
+      stat.success = false;
       break;
     }
     person.setKing(KingKind.King);  // 王フラグを設定
@@ -307,8 +326,14 @@ function createAndDisplayTree() {
   // 乱数をseedで初期化
   resetRnd();
   // ツリーを生成
-  let origin = createTree();
+  let stat = new TreeStat();
+  let origin = createTree(stat);
 
+  if (stat.success){
+    $("#i_stat").text("継承成功");
+  }else{
+    $("#i_stat").text("継承失敗");
+  }
 //  for (i = 0; i < 10000; i++){
 //    createTree();
 //  }
@@ -322,6 +347,7 @@ function getParams() {
   g_Params.maleRatio = Number($("#i_maleRatio").val(), 10);
   g_Params.generation = parseInt($("#i_generation").val(), 10);
   g_Params.seed = parseInt($("#i_seed").val(), 10);
+  g_Params.ancLimit = parseInt($("#i_ancLimit").val(), 10);
   g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
 }
 
@@ -330,7 +356,9 @@ function applyEventFunc() {
 
   // 更新ボタン
   $(document).on("click", "#i_refresh", function () {
+    // パラメーターを取得
     getParams();
+    // ツリーの生成と表示
     createAndDisplayTree();
   });
 
