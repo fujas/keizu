@@ -9,18 +9,22 @@
 // 生成パラメーター
 function Params() {
   // 値はgetParams() で取得
-  this.seed = 1;          // 乱数シード
+  this.pattern = 1;          // 乱数シード
   this.numChild = 1;      // 子供の数
   this.maleRatio = 1;     // 男子が生まれる割合％
   this.generation = 1;    // 生成する世代の数
+  this.pattern = 1;       // 生成パターン数
   this.ancLimit = 1;      // 先祖を遡る世代の上限（父なら１、祖父なら２）
   this.hideBranch = false; // 表示時に直系以外を隠す
+  this.numPattern = 1;    // 統計計算時パターン総数
 }
 let g_Params = new Params();
 
 // 生成情報パラメーター
 function TreeStat(){
-  this.success = true;
+  this.success = true;      // 指定世代まで継承できたらtrue
+  this.maxAnc = 1;          // 最も遡った世代数
+  this.numNoAnc = 0;        // 子に継承できた回数
 }
 
 // ********** シード付き乱数 **********
@@ -53,7 +57,7 @@ let Random = (function () {
 let g_myRnd = new Random(1);
 
 function resetRnd(){
-  g_myRnd = new Random(g_Params.seed);
+  g_myRnd = new Random(g_Params.pattern); // パターンIDを乱数シードにする
 }
 
 // ********** 数値制御関数 **********
@@ -189,12 +193,16 @@ function findRoot(person) {
 }
 
 // 子孫が途絶えているか不明な親までさかのぼる（必要なら親を生成）
-function backTrackPrince(person, targetGeneration) {
+function backTrackPrince(person, targetGeneration, stat) {
   let parent = person;
   do {
+    // 最高遡り数を統計情報に記録
+    let ancSize = targetGeneration - parent.generation;
+    stat.maxAnc = (ancSize > stat.maxAnc) ? ancSize : stat.maxAnc;
     // 遡る限度に達していたらnullを返す
-    if (parent.generation <= targetGeneration - g_Params.ancLimit){
-      return null;
+   // if (parent.generation <= targetGeneration - g_Params.ancLimit){
+      if (ancSize >= g_Params.ancLimit){
+        return null;
     }
     // 1世代遡る
     let prev = parent;
@@ -213,7 +221,7 @@ function backTrackPrince(person, targetGeneration) {
 }
 
 // 1世代先の世継ぎを作る
-function forwardTrackPrince(person) {
+function forwardTrackPrince(person, stat) {
 
   let prince = null;
   let parent = person;
@@ -227,7 +235,7 @@ function forwardTrackPrince(person) {
     if (prince == null) {
       parent.setNoFamily(); // 断絶フラグを設定
       // 親をさかのぼった男子を取得
-      prince = backTrackPrince(parent, targetGeneration);
+      prince = backTrackPrince(parent, targetGeneration, stat);
     }
     // 先祖が遠すぎて断念したときはnullを返す
     if (prince == null) {
@@ -251,13 +259,17 @@ function createTree(stat) {
   // １代ずつ子孫を生成（1度のforward呼び出しでもできそうだが、処理を簡潔にするため分ける）
   let person = origin;
   for (let i = 0; i < g_Params.generation - 1; i++) {
-    person = forwardTrackPrince(person);
-    if (person == null) {
+    let prince = forwardTrackPrince(person, stat);
+    if (prince == null) {
       stat.success = false;
       break;
     }
-    person.setKing(KingKind.King);  // 王フラグを設定
-    setFlagToKingParents(person);   // 王の先祖にフラグを設定
+    if (prince.getParent() == person){
+      stat.numNoAnc++;  // 親から継承できたときの統計情報
+    }
+    prince.setKing(KingKind.King);  // 王フラグを設定
+    setFlagToKingParents(prince);   // 王の先祖にフラグを設定
+    person = prince;
   }
   return origin;
 }
@@ -346,13 +358,22 @@ function getParams() {
   g_Params.numChild = Number($("#i_numChild").val(), 10);
   g_Params.maleRatio = Number($("#i_maleRatio").val(), 10);
   g_Params.generation = parseInt($("#i_generation").val(), 10);
-  g_Params.seed = parseInt($("#i_seed").val(), 10);
+  g_Params.pattern = parseInt($("#i_pattern").val(), 10);
   g_Params.ancLimit = parseInt($("#i_ancLimit").val(), 10);
   g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
+  g_Params.numPattern = parseInt($("#i_numPattern").val(), 10);
 }
 
 // イベント関数の登録
 function applyEventFunc() {
+
+  // 更新ボタン
+  $(document).on("click", "#i_refresh", function () {
+    // パラメーターを取得
+    getParams();
+    // ツリーの生成と表示
+    createAndDisplayTree();
+  });
 
   // 更新ボタン
   $(document).on("click", "#i_refresh", function () {
@@ -372,5 +393,3 @@ applyEventFunc();
 getParams();
 // ツリーの生成と表示
 createAndDisplayTree();
-
-// TODO: 複雑時のストップ機能
