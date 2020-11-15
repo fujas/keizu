@@ -56,8 +56,8 @@ let Random = (function () {
 })();
 let g_myRnd = new Random(1);
 
-function resetRnd(){
-  g_myRnd = new Random(g_Params.pattern); // パターンIDを乱数シードにする
+function resetRnd(seed){
+  g_myRnd = new Random(seed); // パターンIDを乱数シードにする
 }
 
 // ********** 数値制御関数 **********
@@ -198,7 +198,7 @@ function backTrackPrince(person, targetGeneration, stat) {
   do {
     // 最高遡り数を統計情報に記録
     let ancSize = targetGeneration - parent.generation;
-    stat.maxAnc = (ancSize > stat.maxAnc) ? ancSize : stat.maxAnc;
+    stat.maxAnc = (ancSize + 1 > stat.maxAnc) ? ancSize + 1 : stat.maxAnc;
     // 遡る限度に達していたらnullを返す
    // if (parent.generation <= targetGeneration - g_Params.ancLimit){
       if (ancSize >= g_Params.ancLimit){
@@ -335,8 +335,8 @@ function displayMain(person) {
 
 // ツリーの生成と表示
 function createAndDisplayTree() {
-  // 乱数をseedで初期化
-  resetRnd();
+  // 乱数をパターンIDのseedで初期化
+  resetRnd(g_Params.pattern);
   // ツリーを生成
   let stat = new TreeStat();
   let origin = createTree(stat);
@@ -346,11 +346,40 @@ function createAndDisplayTree() {
   }else{
     $("#i_stat").text("継承失敗");
   }
-//  for (i = 0; i < 10000; i++){
-//    createTree();
-//  }
   // ツリーを表示
   displayMain(origin);
+}
+
+// 統計を取る
+function calcStatistics(){
+  // 統計情報の初期化
+  let numSuccess = 0;
+  let maxAnc = 0;
+  let noAnc = 0;
+  //
+  for (let i = 0; i < g_Params.numPattern; i++){
+    // 乱数をiのseedで初期化
+    resetRnd(i);
+    // ツリーを生成
+    let stat = new TreeStat();
+    let origin = createTree(stat);
+    // 成功時は統計情報を取得
+    if (stat.success){
+      numSuccess++;
+      maxAnc += stat.maxAnc;
+      noAnc += stat.numNoAnc;
+    }
+  }
+  // 統計情報を整理
+  let successRat = 100.0 * numSuccess / g_Params.numPattern;
+  if (numSuccess > 0){
+    maxAnc = maxAnc / numSuccess;
+    noAnc = 100.0 * (noAnc / numSuccess) / (g_Params.generation - 1);
+  }
+  $("#i_statStat").text(
+    "継承成功率:" + successRat.toFixed(1) + "% " + 
+    " 平均最高遡り数:" + maxAnc.toFixed(1) + "% " +
+    " 子供継承率:" + noAnc.toFixed(1)) + "%";
 }
 
 // パラメータの取得
@@ -376,11 +405,11 @@ function applyEventFunc() {
   });
 
   // 更新ボタン
-  $(document).on("click", "#i_refresh", function () {
+  $(document).on("click", "#i_statistics", function () {
     // パラメーターを取得
     getParams();
-    // ツリーの生成と表示
-    createAndDisplayTree();
+    // 統計情報の計算
+    calcStatistics();
   });
 
 }
