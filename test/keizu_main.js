@@ -377,9 +377,9 @@ function calcStatistics(){
     noAnc = 100.0 * (noAnc / numSuccess) / (g_Params.generation - 1);
   }
   $("#i_statStat").text(
-    "継承成功率:" + successRat.toFixed(1) + "% " + 
-    " 平均最高遡り数:" + maxAnc.toFixed(1) + "% " +
-    " 子供継承率:" + noAnc.toFixed(1)) + "%";
+    "継承成功率:" + successRat.toFixed(5) + "% " + 
+    " 平均最高遡り数:" + maxAnc.toFixed(5) +
+    " 子供継承率:" + noAnc.toFixed(5)) + "%";
 }
 
 // パラメータの取得
@@ -391,6 +391,7 @@ function getParams() {
   g_Params.ancLimit = parseInt($("#i_ancLimit").val(), 10);
   g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
   g_Params.numPattern = parseInt($("#i_numPattern").val(), 10);
+  g_Params.numPattern *= 10000;
 }
 
 // イベント関数の登録
