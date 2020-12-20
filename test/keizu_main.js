@@ -80,7 +80,11 @@ function defineMale() {
 
 // 子供の数の決定関数
 function defineNumChild() {
-  return g_Params.numChild;
+  // 小数点も考慮。2.5なら2人か3人。
+  let numInt = Math.floor(g_Params.numChild);
+  let numDecimal = g_Params.numChild - numInt;
+  numInt = (numDecimal > g_myRnd.get()) ? numInt + 1 : numInt;
+  return numInt;
 }
 
 // ********** 人物クラス **********
@@ -377,9 +381,10 @@ function calcStatistics(){
     noAnc = 100.0 * (noAnc / numSuccess) / (g_Params.generation - 1);
   }
   $("#i_statStat").text(
-    "継承成功率:" + successRat.toFixed(5) + "% " + 
-    " 平均最高遡り数:" + maxAnc.toFixed(5) +
-    " 子供継承率:" + noAnc.toFixed(5)) + "%";
+    g_Params.generation.toFixed(0) +
+    "代継承成功率:" + successRat.toFixed(2) + "% " + 
+    " 平均最高遡り数:" + maxAnc.toFixed(2) +
+    " 子供継承率:" + noAnc.toFixed(2)) + "%";
 }
 
 // パラメータの取得
