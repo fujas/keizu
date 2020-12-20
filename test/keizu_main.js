@@ -20,6 +20,16 @@ function Params() {
 }
 let g_Params = new Params();
 
+// 統計計算用パラメーター
+function StatisticsParams(){
+  this.numSuccess = 0;
+  this.maxAnc = 0;
+  this.noAnc = 0;
+  this.currIndex = 0;
+  this.updateProgress = false;
+}
+let g_Statistics = new StatisticsParams();
+
 // 生成情報パラメーター
 function TreeStat(){
   this.success = true;      // 指定世代まで継承できたらtrue
@@ -335,7 +345,7 @@ function displayMain(person) {
   var network = new vis.Network(container, data, options);
 }
 
-// ********** イベント処理 **********
+// ********** ツリーの生成と統計処理 **********
 
 // ツリーの生成と表示
 function createAndDisplayTree() {
@@ -356,10 +366,6 @@ function createAndDisplayTree() {
 
 // 統計を取る
 function calcStatistics(){
-  // 統計情報の初期化
-  let numSuccess = 0;
-  let maxAnc = 0;
-  let noAnc = 0;
   //
   for (let i = 0; i < g_Params.numPattern; i++){
     // 乱数をiのseedで初期化
@@ -369,23 +375,25 @@ function calcStatistics(){
     let origin = createTree(stat);
     // 成功時は統計情報を取得
     if (stat.success){
-      numSuccess++;
-      maxAnc += stat.maxAnc;
-      noAnc += stat.numNoAnc;
+      g_Statistics.numSuccess++;
+      g_Statistics.maxAnc += stat.maxAnc;
+      g_Statistics.noAnc += stat.numNoAnc;
     }
   }
   // 統計情報を整理
-  let successRat = 100.0 * numSuccess / g_Params.numPattern;
-  if (numSuccess > 0){
-    maxAnc = maxAnc / numSuccess;
-    noAnc = 100.0 * (noAnc / numSuccess) / (g_Params.generation - 1);
+  let successRat = 100.0 * g_Statistics.numSuccess / g_Params.numPattern;
+  if (g_Statistics.numSuccess > 0){
+    g_Statistics.maxAnc = g_Statistics.maxAnc / g_Statistics.numSuccess;
+    g_Statistics.noAnc = 100.0 * (g_Statistics.noAnc / g_Statistics.numSuccess) / (g_Params.generation - 1);
   }
   $("#i_statStat").text(
     g_Params.generation.toFixed(0) +
     "代継承成功率:" + successRat.toFixed(2) + "% " + 
-    " 平均最高遡り数:" + maxAnc.toFixed(2) +
-    " 子供継承率:" + noAnc.toFixed(2)) + "%";
+    " 平均最高遡り数:" + g_Statistics.maxAnc.toFixed(2) +
+    " 子供継承率:" + g_Statistics.noAnc.toFixed(2)) + "%";
 }
+
+// ********** イベント処理 **********
 
 // パラメータの取得
 function getParams() {
@@ -400,7 +408,8 @@ function getParams() {
 }
 
 // 系図の更新
-var g_treeUpdating = 0;
+let g_treeUpdating = 0;
+
 function updateTreeMain(){
   // 最後のタイマー呼び出しの時だけ処理する
   g_treeUpdating--;
@@ -411,30 +420,46 @@ function updateTreeMain(){
     createAndDisplayTree();
   }
 }
+
+// 統計情報の更新
+let g_statisticsUpdating = 0;
+
+function updateStatisticsMain(){
+  g_statisticsUpdating--;
+  if (g_statisticsUpdating <= 0){
+    // パラメーターを取得
+    getParams();
+    // 統計計算
+    g_Statistics.numSuccess = 0;
+    g_Statistics.maxAnc = 0;
+    g_Statistics.noAnc = 0;
+    g_Statistics.currIndex = 0;
+    g_Statistics.updateProgress = false;
+    // 統計情報の計算
+    calcStatistics();
+  }
+}
+
 function updateTree(){
   // あまり頻繁に更新しないように、またチェックを正しく認識できるように、タイマーで起動
+  // 表示ツリーの更新
   g_treeUpdating++;
-  setTimeout(updateTreeMain, 200)
+  setTimeout(updateTreeMain, 200);
+  // 統計情報の更新
+  g_statisticsUpdating++;
+  setTimeout( updateStatisticsMain, 570);
 }
 
 // イベント関数の登録
 function applyEventFunc() {
 
-  // 各パラメーターの変更
+  // 各パラメーターの変更イベント
   $("#i_numChild").bind('keyup mouseup', updateTree);
   $("#i_maleRatio").bind('keyup mouseup', updateTree);
   $("#i_generation").bind('keyup mouseup', updateTree);
   $("#i_pattern").bind('keyup mouseup', updateTree);
   $("#i_ancLimit").bind('keyup mouseup', updateTree);
   $("#i_hideBranch").bind('keyup mouseup', updateTree);
-
-  // 統計計算ボタン
-  $(document).on("click", "#i_statistics", function () {
-    // パラメーターを取得
-    getParams();
-    // 統計情報の計算
-    calcStatistics();
-  });
 
 }
 
@@ -446,3 +471,5 @@ applyEventFunc();
 getParams();
 // ツリーの1つの生成と表示
 createAndDisplayTree();
+// 統計情報の計算
+calcStatistics();
