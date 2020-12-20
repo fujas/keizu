@@ -426,5 +426,5 @@ function applyEventFunc() {
 applyEventFunc();
 // パラメータ初期値をhtmlから取得
 getParams();
-// ツリーの生成と表示
+// ツリーの1つの生成と表示
 createAndDisplayTree();
