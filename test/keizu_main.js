@@ -399,18 +399,36 @@ function getParams() {
   g_Params.numPattern *= 10000;
 }
 
-// イベント関数の登録
-function applyEventFunc() {
-
-  // 更新ボタン
-  $(document).on("click", "#i_refresh", function () {
+// 系図の更新
+var g_treeUpdating = 0;
+function updateTreeMain(){
+  // 最後のタイマー呼び出しの時だけ処理する
+  g_treeUpdating--;
+  if (g_treeUpdating <= 0){
     // パラメーターを取得
     getParams();
     // ツリーの生成と表示
     createAndDisplayTree();
-  });
+  }
+}
+function updateTree(){
+  // あまり頻繁に更新しないように、またチェックを正しく認識できるように、タイマーで起動
+  g_treeUpdating++;
+  setTimeout(updateTreeMain, 200)
+}
 
-  // 更新ボタン
+// イベント関数の登録
+function applyEventFunc() {
+
+  // 各パラメーターの変更
+  $("#i_numChild").bind('keyup mouseup', updateTree);
+  $("#i_maleRatio").bind('keyup mouseup', updateTree);
+  $("#i_generation").bind('keyup mouseup', updateTree);
+  $("#i_pattern").bind('keyup mouseup', updateTree);
+  $("#i_ancLimit").bind('keyup mouseup', updateTree);
+  $("#i_hideBranch").bind('keyup mouseup', updateTree);
+
+  // 統計計算ボタン
   $(document).on("click", "#i_statistics", function () {
     // パラメーターを取得
     getParams();
