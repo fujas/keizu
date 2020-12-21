@@ -352,6 +352,7 @@ function displayMain(person) {
 
 // ツリーの生成と表示
 function createAndDisplayTree() {
+  /*
   // 乱数をパターンIDのseedで初期化
   resetRnd(g_Params.pattern);
   // ツリーを生成
@@ -365,10 +366,18 @@ function createAndDisplayTree() {
   }
   // ツリーを表示
   displayMain(origin);
+  */
+}
+
+function displayTree(origin){
+  let originData = origin.data;
+  // ツリーを表示
+  displayMain(originData);
 }
 
 // 統計を取る
 function calcStatistics(){
+  /*
   //
   for (let i = 0; i < g_Params.numPattern; i++){
     // 乱数をiのseedで初期化
@@ -394,6 +403,7 @@ function calcStatistics(){
     "代継承成功率:" + successRat.toFixed(2) + "% " + 
     " 平均最高遡り数:" + g_Statistics.maxAnc.toFixed(2) +
     " 子供継承率:" + g_Statistics.noAnc.toFixed(2)) + "%";
+    */
 }
 
 // ********** イベント処理 **********
@@ -420,7 +430,10 @@ function updateTreeMain(){
     // パラメーターを取得
     getParams();
     // ツリーの生成と表示
-    createAndDisplayTree();
+    //createAndDisplayTree();
+    let worker = new Worker("keizu_tree.js");
+    worker.addEventListener("message", displayTree, false);
+    worker.postMessage(g_Params);
   }
 }
 

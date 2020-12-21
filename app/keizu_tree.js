@@ -5,6 +5,13 @@
 // 系図の起点は「未来の架空の王」であり、その王まで同じ条件で継承されたものと仮定します。
 //
 
+// 生成情報パラメーター
+function TreeStat(){
+  this.success = true;      // 指定世代まで継承できたらtrue
+  this.maxAnc = 1;          // 最も遡った世代数
+  this.numNoAnc = 0;        // 子に継承できた回数
+}
+
 // ********** シード付き乱数 **********
 // "JavaScriptで再現性のある乱数を生成する + 指定した範囲の乱数を生成する" を参考にさせていただきました。
 let Random = (function () {
@@ -256,4 +263,16 @@ function createTree(stat) {
   return origin;
 }
 
+let g_Params;
 
+//worker
+self.addEventListener('message', function(params) {
+
+  g_Params = params.data;
+  let stat = new TreeStat();
+
+  let origin = createTree(stat);
+
+  //処理結果を送信
+  self.postMessage(origin);
+}, false);
