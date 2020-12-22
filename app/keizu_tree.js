@@ -271,8 +271,13 @@ self.addEventListener('message', function(params) {
   g_Params = params.data;
   let stat = new TreeStat();
 
+  resetRnd(g_Params.pattern);
+
   let origin = createTree(stat);
+  let rootParent = findRoot(origin);
+
+  let retVal = { root: rootParent, stat: stat };
 
   //処理結果を送信
-  self.postMessage(origin);
+  self.postMessage(retVal);
 }, false);
