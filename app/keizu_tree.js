@@ -265,7 +265,7 @@ function createTree(stat) {
 
 let g_Params;
 
-//worker
+// workerスレッドメイン
 self.addEventListener('message', function(params) {
 
   g_Params = params.data;
@@ -280,4 +280,10 @@ self.addEventListener('message', function(params) {
 
   //処理結果を送信
   self.postMessage(retVal);
+
+  // 続けて統計処理
+
+
+
+  
 }, false);

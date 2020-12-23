@@ -107,7 +107,7 @@ function displayMain(person) {
 // ツリーの生成と表示
 function displayTree(origin){
   // ツリー生成中に新たにイベントが発生したら、表示しない
-  if (g_treeUpdating <= 0){
+  if (g_UpdateCount <= 0){
 
     // ツリーを表示
     let originData = origin.data.root;
@@ -155,7 +155,7 @@ function calcStatistics(){
 
 // ********** イベント処理 **********
 
-// パラメータの取得
+// UIからのパラメータの取得
 function getParams() {
   g_Params.numChild = Number($("#i_numChild").val(), 10);
   g_Params.maleRatio = Number($("#i_maleRatio").val(), 10);
@@ -168,27 +168,32 @@ function getParams() {
 }
 
 // 系図の更新
-let g_treeUpdating = 0;
-let g_Worker;
+let g_UpdateCount = 0;
+let g_Worker = null;
+let g_WorkerWorking = false;
 
 function updateTreeMain(){
   // 最後のタイマー呼び出しの時だけ処理する
-  g_treeUpdating--;
-  if (g_treeUpdating <= 0){
+  g_UpdateCount--;
+  if (g_UpdateCount <= 0){
     // パラメーターを取得
     getParams();
-    // 別スレッドでツリーを生成、ツリーをこのスレッドで取得して表示
+    // ワーカーが動いていたら（または初回なら）止めて再生成
+    if (g_WorkerWorking || g_Worker == null){
+      if (g_Worker != null){
+        g_Worker.terminate();
+      }
+      g_Worker = new Worker("keizu_tree.js");
+    }
+    // 別スレッドでツリーを生成＆統計計算、ツリーと統計情報をこのスレッドで取得して表示
+    g_WorkerWorking = true;
     g_Worker.addEventListener("message", displayTree, false);
     g_Worker.postMessage(g_Params);
   }
 }
 
 // 統計情報の更新
-let g_statisticsUpdating = 0;
-
 function updateStatisticsMain(){
-  g_statisticsUpdating--;
-  if (g_statisticsUpdating <= 0){
     // パラメーターを取得
     getParams();
     // 統計計算
@@ -199,17 +204,13 @@ function updateStatisticsMain(){
     g_Statistics.updateProgress = false;
     // 統計情報の計算
 //    calcStatistics(); TODO:
-  }
 }
 
 function updateTree(){
   // あまり頻繁に更新しないように、またチェックを正しく認識できるように、タイマーで起動
   // 表示ツリーの更新
-  g_treeUpdating++;
+  g_UpdateCount++;
   setTimeout(updateTreeMain, 200);  // ツリー生成がこの時間よりも長いとイベントがたまってしまう
-  // 統計情報の更新
-  g_statisticsUpdating++;
-  setTimeout( updateStatisticsMain, 570);
 }
 
 // イベント関数の登録
@@ -222,8 +223,6 @@ function applyEventFunc() {
   $("#i_pattern").bind('keyup mouseup', updateTree);
   $("#i_ancLimit").bind('keyup mouseup', updateTree);
   $("#i_hideBranch").bind('keyup mouseup', updateTree);
-  // ワーカースレッドの準備
-  g_Worker = new Worker("keizu_tree.js");
 
 }
 
