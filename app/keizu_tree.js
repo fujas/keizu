@@ -5,12 +5,25 @@
 // 系図の起点は「未来の架空の王」であり、その王まで同じ条件で継承されたものと仮定します。
 //
 
+// ********** 構造体 ***********
 // 生成情報パラメーター
 function TreeStat(){
   this.success = true;      // 指定世代まで継承できたらtrue
   this.maxAnc = 1;          // 最も遡った世代数
   this.numNoAnc = 0;        // 子に継承できた回数
 }
+
+// 統計計算用パラメーター
+function StatisticsParams(){
+  this.numSuccess = 0;
+  this.maxAnc = 0;
+  this.noAnc = 0;
+  this.currIndex = 0;
+  this.updateProgress = false;
+}
+let g_Statistics;
+let g_Params;
+
 
 // ********** シード付き乱数 **********
 // "JavaScriptで再現性のある乱数を生成する + 指定した範囲の乱数を生成する" を参考にさせていただきました。
@@ -263,7 +276,45 @@ function createTree(stat) {
   return origin;
 }
 
-let g_Params;
+// ********** 統計情報を計算 **********
+
+// 統計を取る
+function calcStatistics(){
+  // パターン数だけツリーを生成
+  let percentNum = g_Params.numPattern / 100;
+  for (let i = 0; i < g_Params.numPattern; i++){
+    // 乱数をiのseedで初期化
+    resetRnd(i);
+    // ツリーを生成
+    let stat = new TreeStat();
+    let origin = createTree(stat);
+    // 成功時は統計情報を取得
+    if (stat.success){
+      g_Statistics.numSuccess++;
+      g_Statistics.maxAnc += stat.maxAnc;
+      g_Statistics.noAnc += stat.numNoAnc;
+    }
+    // １％ごとに進捗情報をメインスレッドにポスト
+    if (i % percentNum == 0){
+      let percent = i / percentNum;
+      if (percent >= 1 && percent <= 99){
+        let retVal = { type: percent };
+        self.postMessage(retVal);
+      }
+    }
+  }
+  // 統計情報を整理
+  let successRat = 100.0 * g_Statistics.numSuccess / g_Params.numPattern;
+  if (g_Statistics.numSuccess > 0){
+    g_Statistics.maxAnc = g_Statistics.maxAnc / g_Statistics.numSuccess;
+    g_Statistics.noAnc = 100.0 * (g_Statistics.noAnc / g_Statistics.numSuccess) / (g_Params.generation - 1);
+  }
+  // 統計結果を返す
+  let statStat = { ratio: successRat, max: g_Statistics.maxAnc, child: g_Statistics.noAnc };
+  return statStat;
+}
+
+// ********** イベント処理 **********
 
 // workerスレッドメイン
 self.addEventListener('message', function(params) {
@@ -271,19 +322,21 @@ self.addEventListener('message', function(params) {
   g_Params = params.data;
   let stat = new TreeStat();
 
+  // ツリーを1個生成
   resetRnd(g_Params.pattern);
-
   let origin = createTree(stat);
   let rootParent = findRoot(origin);
-
-  let retVal = { root: rootParent, stat: stat };
-
   //処理結果を送信
+  let treeInfo = { root: rootParent, stat: stat };
+  let retVal = { type: 0, tree:treeInfo };
   self.postMessage(retVal);
 
   // 続けて統計処理
-
-
-
+  g_Statistics = new StatisticsParams();
+  // 統計情報の計算
+  let statStat = calcStatistics();
+  // 結果を送信
+  let retVal2 = { type: 100, statstat:statStat };
+  self.postMessage(retVal2);
   
 }, false);

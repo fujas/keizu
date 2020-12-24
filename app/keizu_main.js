@@ -29,16 +29,6 @@ function Params() {
 }
 let g_Params = new Params();
 
-// 統計計算用パラメーター
-function StatisticsParams(){
-  this.numSuccess = 0;
-  this.maxAnc = 0;
-  this.noAnc = 0;
-  this.currIndex = 0;
-  this.updateProgress = false;
-}
-let g_Statistics = new StatisticsParams();
-
 // 生成情報パラメーター
 function TreeStat(){
   this.success = true;      // 指定世代まで継承できたらtrue
@@ -105,55 +95,45 @@ function displayMain(person) {
 // ********** ツリーの生成と統計処理 **********
 
 // ツリーの生成と表示
-function displayTree(origin){
+function displayTree(treeInfo){
   // ツリー生成中に新たにイベントが発生したら、表示しない
   if (g_UpdateCount <= 0){
-
     // ツリーを表示
-    let originData = origin.data.root;
+    let originData = treeInfo.root;
     displayMain(originData);
     // 成功か失敗かの文字を更新
-    if (origin.data.stat.success){
+    if (treeInfo.stat.success){
       $("#i_stat").text("継承成功");
     }else{
       $("#i_stat").text("継承失敗");
     }
-
   }
-}
-
-// 統計を取る
-function calcStatistics(){
-  /*
-  //
-  for (let i = 0; i < g_Params.numPattern; i++){
-    // 乱数をiのseedで初期化
-    resetRnd(i);
-    // ツリーを生成
-    let stat = new TreeStat();
-    let origin = createTree(stat);
-    // 成功時は統計情報を取得
-    if (stat.success){
-      g_Statistics.numSuccess++;
-      g_Statistics.maxAnc += stat.maxAnc;
-      g_Statistics.noAnc += stat.numNoAnc;
-    }
-  }
-  // 統計情報を整理
-  let successRat = 100.0 * g_Statistics.numSuccess / g_Params.numPattern;
-  if (g_Statistics.numSuccess > 0){
-    g_Statistics.maxAnc = g_Statistics.maxAnc / g_Statistics.numSuccess;
-    g_Statistics.noAnc = 100.0 * (g_Statistics.noAnc / g_Statistics.numSuccess) / (g_Params.generation - 1);
-  }
-  $("#i_statStat").text(
-    g_Params.generation.toFixed(0) +
-    "代継承成功率:" + successRat.toFixed(2) + "% " + 
-    " 平均最高遡り数:" + g_Statistics.maxAnc.toFixed(2) +
-    " 子供継承率:" + g_Statistics.noAnc.toFixed(2)) + "%";
-    */
 }
 
 // ********** イベント処理 **********
+
+// ワーカーからのイベント取得
+function workerListener(message){
+  // 表示用ツリー情報
+  if (message.data.type == 0){
+    displayTree(message.data.tree);
+  }
+  // 統計計算
+  else if (message.data.type < 100){
+    $("#i_statStat").text(
+      "統計情報計算中 " + message.data.type.toFixed(0) + "%"
+    );
+  }
+  // 統計結果
+  else{
+    let statstat = message.data.statstat;
+    $("#i_statStat").text(
+      g_Params.generation.toFixed(0) +
+      "代継承成功率:" + statstat.ratio.toFixed(2) + "% " + 
+      " 平均最高遡り数:" + statstat.max.toFixed(2) +
+      " 子供継承率:" + statstat.child.toFixed(2) + "%");
+  }
+}
 
 // UIからのパラメータの取得
 function getParams() {
@@ -178,7 +158,7 @@ function updateTreeMain(){
   if (g_UpdateCount <= 0){
     // パラメーターを取得
     getParams();
-    // ワーカーが動いていたら（または初回なら）止めて再生成
+    // ワーカーが動いていたら（または初回なら）止めてワーカーを再生成
     if (g_WorkerWorking || g_Worker == null){
       if (g_Worker != null){
         g_Worker.terminate();
@@ -187,25 +167,12 @@ function updateTreeMain(){
     }
     // 別スレッドでツリーを生成＆統計計算、ツリーと統計情報をこのスレッドで取得して表示
     g_WorkerWorking = true;
-    g_Worker.addEventListener("message", displayTree, false);
+    g_Worker.addEventListener("message", workerListener, false);
     g_Worker.postMessage(g_Params);
   }
 }
 
-// 統計情報の更新
-function updateStatisticsMain(){
-    // パラメーターを取得
-    getParams();
-    // 統計計算
-    g_Statistics.numSuccess = 0;
-    g_Statistics.maxAnc = 0;
-    g_Statistics.noAnc = 0;
-    g_Statistics.currIndex = 0;
-    g_Statistics.updateProgress = false;
-    // 統計情報の計算
-//    calcStatistics(); TODO:
-}
-
+// ツリーと統計情報の更新
 function updateTree(){
   // あまり頻繁に更新しないように、またチェックを正しく認識できるように、タイマーで起動
   // 表示ツリーの更新
@@ -215,7 +182,6 @@ function updateTree(){
 
 // イベント関数の登録
 function applyEventFunc() {
-
   // 各パラメーターの変更イベント
   $("#i_numChild").bind('keyup mouseup', updateTree);
   $("#i_maleRatio").bind('keyup mouseup', updateTree);
@@ -223,7 +189,6 @@ function applyEventFunc() {
   $("#i_pattern").bind('keyup mouseup', updateTree);
   $("#i_ancLimit").bind('keyup mouseup', updateTree);
   $("#i_hideBranch").bind('keyup mouseup', updateTree);
-
 }
 
 // ********** メイン **********
@@ -233,8 +198,4 @@ applyEventFunc();
 // パラメータ初期値をhtmlから取得
 getParams();
 // ツリーの1つの生成と表示
-//createAndDisplayTree();
-// 統計情報の計算
-//calcStatistics();
-
 updateTree();
