@@ -15,26 +15,26 @@
   <body>
     <div>
       <label for="i_numChild">子供の数（1～10）</label>
-      <input type="number" id="i_numChild" value="2">
+      <input type="number" id="i_numChild" value="2.5" min="1" max="10">
     </div>
     <div>
       <label for="i_maleRatio">男子の割合(％)</label>
-      <input type="number" id="i_maleRatio" value="51.3">
+      <input type="number" id="i_maleRatio" value="51.3" min="10" max="100">
     </div>
     <div>
       <label for="i_seed">遡る世代の上限(1～10)</label>
-      <input type="number" id="i_ancLimit" value="3">
+      <input type="number" id="i_ancLimit" value="3" min="1" max="10">
     </div>
 
     <details>
       <summary>詳細設定</summary>
     <div>
-      <label for="i_generation">世代の数(2～30)</label>
-      <input type="number" id="i_generation" value="30">
+      <label for="i_generation">計算する世代の数(2～30)</label>
+      <input type="number" id="i_generation" value="30" min="2" max="30">
     </div>
     <div>
       <label for="i_seed">統計計算パターン数(1～100)</label>
-      <input type="number" id="i_numPattern" value="10">
+      <input type="number" id="i_numPattern" value="10" min="1" max="100">
       <label for="i_seed"> x 1万回</label>
     </div>
   </details>
@@ -46,7 +46,7 @@
     <div><br></div>
     <div>
       <label for="i_seed">表示系図パターン(1～100,000)</label>
-      <input type="number" id="i_pattern" value="1">
+      <input type="number" id="i_pattern" value="1" min="1">
     </div>
     <div>
       <label for="i_hideBranch">直系以外は隠す</label>
