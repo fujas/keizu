@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Network</title>
+    <title>男系継承シミュレーター</title>
     <script type="text/javascript" src="app/vis-network.min.js"></script>
     <style type="text/css">
       #mynetwork {
         width: 600px;
-        height: 1400px;
+        height: 1000px;
         border: 1px solid lightgray;
       }
     </style>
@@ -25,12 +25,27 @@
       <label for="i_seed">遡る世代の上限(1～10)</label>
       <input type="number" id="i_ancLimit" value="3">
     </div>
+
+    <details>
+      <summary>詳細設定</summary>
     <div>
       <label for="i_generation">世代の数(2～30)</label>
       <input type="number" id="i_generation" value="30">
     </div>
     <div>
-      <label for="i_seed">系図パターン(1～10000)</label>
+      <label for="i_seed">統計計算パターン数(1～100)</label>
+      <input type="number" id="i_numPattern" value="10">
+      <label for="i_seed"> x 1万回</label>
+    </div>
+  </details>
+
+    <div id="i_statStat">
+      統計情報
+    </div>
+
+    <div><br></div>
+    <div>
+      <label for="i_seed">表示系図パターン(1～100,000)</label>
       <input type="number" id="i_pattern" value="1">
     </div>
     <div>
@@ -40,17 +55,15 @@
     <div id="i_stat">
       継承
     </div>
-    <div><br></div>
-    <div>
-      <label for="i_seed">統計計算パターン数(1～100)</label>
-      <input type="number" id="i_numPattern" value="10">
-      <label for="i_seed"> x 1万回</label>
-    </div>
-    <div id="i_statStat">
-      統計情報
-    </div>
 
     <div id="mynetwork"></div>
+    <div id="i_copyright">
+      (C)fujas 2021 本図は確率的に想定される系図のほんの一例です。
+    </div>
+    <div id="i_note">
+      この系図は本サイトの著作権者の許可なく自由に転載可能です。
+      ただし、図の中または近くに「(C)fujas 2021 本図は確率的に想定される系図のほんの一例です」と明記してください。
+    </div>
     <script src="app/jquery-3.5.1.slim.min.js"></script>
     <script type="text/javascript" src="app/keizu_main.js"></script>
   

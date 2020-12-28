@@ -129,9 +129,9 @@ function workerListener(message){
     let statstat = message.data.statstat;
     $("#i_statStat").text(
       g_Params.generation.toFixed(0) +
-      "代継承成功率:" + statstat.ratio.toFixed(2) + "% " + 
-      " 平均最高遡り数:" + statstat.max.toFixed(2) +
-      " 子供継承率:" + statstat.child.toFixed(2) + "%");
+      "代継承成功率:" + statstat.ratio.toFixed(1) + "% " + 
+      " 平均最高遡り数:" + statstat.max.toFixed(1) +
+      " 子供継承率:" + statstat.child.toFixed(1) + "%");
   }
 }
 
@@ -189,6 +189,7 @@ function applyEventFunc() {
   $("#i_pattern").bind('keyup mouseup', updateTree);
   $("#i_ancLimit").bind('keyup mouseup', updateTree);
   $("#i_hideBranch").bind('keyup mouseup', updateTree);
+  $("#i_numPattern").bind('keyup mouseup', updateTree);
 }
 
 // ********** メイン **********
