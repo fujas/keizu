@@ -163,7 +163,7 @@ function updateTreeMain(){
       if (g_Worker != null){
         g_Worker.terminate();
       }
-      g_Worker = new Worker("keizu_tree.js");
+      g_Worker = new Worker("app/keizu_tree.js");
     }
     // 別スレッドでツリーを生成＆統計計算、ツリーと統計情報をこのスレッドで取得して表示
     g_WorkerWorking = true;
