@@ -121,7 +121,7 @@ function workerListener(message){
   // 統計計算
   else if (message.data.type < 100){
     $("#i_statStat").text(
-      "統計情報計算中 " + message.data.type.toFixed(0) + "%"
+      "計算中 " + message.data.type.toFixed(0) + "%"
     );
   }
   // 統計結果
@@ -135,29 +135,59 @@ function workerListener(message){
   }
 }
 
+// UIの宇内を取得し、上限下限に合わせてUIの値を変更し、値を返す
+function getAndLimitValue(ctrlStr, isInt, modifyUI){
+  let val, min, max;
+  if (isInt){
+    val = parseInt($(ctrlStr).val(), 10);
+    max = parseInt($(ctrlStr).attr('max'), 10);
+    min = parseInt($(ctrlStr).attr('min'), 10);
+  }
+  else{
+    val = Number($(ctrlStr).val(), 10);
+    max = Number($(ctrlStr).attr('max'), 10);
+    min = Number($(ctrlStr).attr('min'), 10);
+  }
+  if (isNaN(val)){
+    val = min;
+  }
+  if (val > max){
+    val = max;
+  }
+  if (val < min){
+    val = min;
+  }
+  if (modifyUI){
+    $(ctrlStr).val(val);
+  }
+  return val;
+}
+
 // UIからのパラメータの取得
-function getParams() {
-  g_Params.numChild = Number($("#i_numChild").val(), 10);
-  g_Params.maleRatio = Number($("#i_maleRatio").val(), 10);
-  g_Params.generation = parseInt($("#i_generation").val(), 10);
-  g_Params.pattern = parseInt($("#i_pattern").val(), 10);
-  g_Params.ancLimit = parseInt($("#i_ancLimit").val(), 10);
+function getParams(modifyUI) {
+  g_Params.numChild = getAndLimitValue("#i_numChild", false, modifyUI);
+  g_Params.maleRatio = getAndLimitValue("#i_maleRatio", false, modifyUI);
+  g_Params.generation = getAndLimitValue("#i_generation", true, modifyUI);
+  g_Params.pattern = getAndLimitValue("#i_pattern", true, modifyUI);
+  g_Params.ancLimit = getAndLimitValue("#i_ancLimit", true, modifyUI);
   g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
-  g_Params.numPattern = parseInt($("#i_numPattern").val(), 10);
+  g_Params.numPattern = getAndLimitValue("#i_numPattern", true, modifyUI);
   g_Params.numPattern *= 10000;
 }
 
 // 系図の更新
 let g_UpdateCount = 0;
+let g_UpdateUICount = 0;
 let g_Worker = null;
 let g_WorkerWorking = false;
 
+// 表示ツリーと統計情報の更新
 function updateTreeMain(){
   // 最後のタイマー呼び出しの時だけ処理する
   g_UpdateCount--;
   if (g_UpdateCount <= 0){
     // パラメーターを取得
-    getParams();
+    getParams(false);
     // ワーカーが動いていたら（または初回なら）止めてワーカーを再生成
     if (g_WorkerWorking || g_Worker == null){
       if (g_Worker != null){
@@ -172,12 +202,25 @@ function updateTreeMain(){
   }
 }
 
+// 不正な入力値の画面上での更新
+function updateUIMain(){
+  // 最後のタイマー呼び出しの時だけ処理する
+  g_UpdateUICount--;
+  if (g_UpdateUICount <= 0){
+    // 不正な入力値を画面上でも修正（g_Paramsの値は修正済み）
+    getParams(true);
+  }
+}
+
 // ツリーと統計情報の更新
 function updateTree(){
   // あまり頻繁に更新しないように、またチェックを正しく認識できるように、タイマーで起動
-  // 表示ツリーの更新
+  // 表示ツリーと統計情報の更新
   g_UpdateCount++;
-  setTimeout(updateTreeMain, 200);  // ツリー生成がこの時間よりも長いとイベントがたまってしまう
+  setTimeout(updateTreeMain, 200);
+  // 不正な入力値の画面上での更新
+  g_UpdateUICount++;
+  setTimeout(updateUIMain, 2500);
 }
 
 // イベント関数の登録
@@ -197,6 +240,6 @@ function applyEventFunc() {
 // イベント処理関数を登録
 applyEventFunc();
 // パラメータ初期値をhtmlから取得
-getParams();
+getParams(false);
 // ツリーの1つの生成と表示
 updateTree();
