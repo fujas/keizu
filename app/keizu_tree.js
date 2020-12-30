@@ -1,8 +1,8 @@
 //
-// 系図作成プログラム (C)Github/fujas 2020
+// 男系継承シミュレーター (C)Github/fujas 2020
 //
-// 王家を男子で継承するときの系図を、指定の条件でシミュレーションして作図します。
-// 系図の起点は「未来の架空の王」であり、その王まで同じ条件で継承されたものと仮定します。
+// 天皇を男子で継承するときの系図を、指定の条件でシミュレーションして作図します。
+// 系図の起点は「未来の架空の天皇」であり、その天皇まで同じ条件で継承されたものと仮定します。
 //
 
 // ********** 構造体 ***********
@@ -87,10 +87,10 @@ function defineNumChild() {
 
 // ********** 人物クラス **********
 // 表示枝刈用フラグ
-const KingKind = {
-  Normal: 0,       // 普通の人
-  KingParent: 1,   // 王ではないがその先祖の男
-  King: 2          // 王
+const EmperorKind = {
+  Normal: 0,       // 天皇ではない人
+  EmperorParent: 1,   // 天皇ではないがその先祖の男
+  Emperor: 2          // 天皇
 }
 // 人物クラス
 let Person = (function () {
@@ -104,13 +104,13 @@ let Person = (function () {
     this.id = id;                   // 表示制御用ID
     this.generation = generation;   // 世代。起点以前なら負の数になる。
     this.male = male;               // 性別(trueで男)
-    this.king = KingKind.Normal;    // 表示用の王かどうかのフラグ
+    this.emperor = EmperorKind.Normal;    // 表示用の、天皇かどうかのフラグ
     // メンバ変数（リンク）
     this.parent = parent;           // 父親へのポインタ
     this.child = [];                // 子供へのポインタ配列
     // メンバ変数（内部フラグ）
     this.childCreated = false;      // 子供を全部作ったらtrue
-    this.noFamily = false;          // 子孫が途絶えることが確定したらtrue
+    this.noFamily = false;          // 男系子孫が途絶えることが確定したらtrue
   }
   let p = Person.prototype;
 
@@ -118,7 +118,7 @@ let Person = (function () {
   p.getParent = function () { return this.parent; }
 
   // Setter
-  p.setKing = function (kind) { this.king = kind; }
+  p.setEmperor = function (kind) { this.emperor = kind; }
   p.setNoFamily = function () { this.noFamily = true; }
 
   // 子供生成関数
@@ -152,7 +152,7 @@ let Person = (function () {
     this.createChildren();
     // 子供に男がいればそれを返す
     for (let child of this.child) {
-      // 子孫が途絶えていない男だけを探す
+      // 男系子孫が途絶えていない男だけを探す
       if (child.male && (!child.noFamily)) {
         return child;
       }
@@ -166,22 +166,22 @@ let Person = (function () {
 
 // ********** １世代先の世継ぎを生成する関数群 **********
 
-// 王の先祖にフラグを付ける
-function setFlagToKingParents(king) {
-  // kingが王であるかチェック。
-  if (king.king != KingKind.King) {
+// 天皇の先祖にフラグを付ける
+function setFlagToEmperorParents(emperor) {
+  // emperorが天皇であるかチェック。
+  if (emperor.emperor != EmperorKind.Emperor) {
     return;
   }
 
-  let parent = king;
+  let parent = emperor;
   while (1) {
-    // 親がいない、またはすでに王か王の祖先なら処理終了。
+    // 親がいない、またはすでに天皇か天皇の祖先なら処理終了。
     parent = parent.getParent();
-    if (parent == null || parent.king != KingKind.Normal) {
+    if (parent == null || parent.emperor != EmperorKind.Normal) {
       return;
     }
-    // 王の先祖フラグを付ける。
-    parent.king = KingKind.KingParent;
+    // 天皇の先祖フラグを付ける。
+    parent.emperor = EmperorKind.EmperorParent;
   }
 }
 
@@ -212,9 +212,9 @@ function backTrackPrince(person, targetGeneration, stat) {
     if (parent == null) {
       // 親が未定義なら生成
       parent = prev.createParent();
-      // 親が王やその祖先であれば王の祖先フラグを付ける
-      if (prev.king != KingKind.Normal) {
-        parent.setKing(KingKind.KingParent);
+      // 親が天皇やその祖先であれば天皇の祖先フラグを付ける
+      if (prev.emperor != EmperorKind.Normal) {
+        parent.setEmperor(EmperorKind.EmperorParent);
       }
     }
   } while (parent.noFamily == true);  // 子孫が途絶えている親ならさらに遡る
@@ -256,7 +256,7 @@ function createTree(stat) {
   // 始祖を生成
   resetNewID();
   let origin = new Person(null, getNewID(), 1, true);
-  origin.setKing(KingKind.King);
+  origin.setEmperor(EmperorKind.Emperor);
 
   // １代ずつ子孫を生成（1度のforward呼び出しでもできそうだが、処理を簡潔にするため分ける）
   let person = origin;
@@ -269,8 +269,8 @@ function createTree(stat) {
     if (prince.getParent() == person){
       stat.numNoAnc++;  // 親から継承できたときの統計情報
     }
-    prince.setKing(KingKind.King);  // 王フラグを設定
-    setFlagToKingParents(prince);   // 王の先祖にフラグを設定
+    prince.setEmperor(EmperorKind.Emperor);  // 天皇フラグを設定
+    setFlagToEmperorParents(prince);   // 天皇の先祖にフラグを設定
     person = prince;
   }
   return origin;

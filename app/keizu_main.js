@@ -1,16 +1,16 @@
 //
-// 系図作成プログラム (C)Github/fujas 2020
+// 男系系図シミュレーター (C)Github/fujas 2020
 //
-// 王家を男子で継承するときの系図を、指定の条件でシミュレーションして作図します。
-// 系図の起点は「未来の架空の王」であり、その王まで同じ条件で継承されたものと仮定します。
+// 天皇を男子で継承するときの系図を、指定の条件でシミュレーションして作図します。
+// 系図の起点は「未来の架空の天皇」であり、その天皇まで同じ条件で継承されたものと仮定します。
 //
 
 // ************ 共通 **********
 // 表示枝刈用フラグ
-const KingKind = {
-  Normal: 0,       // 普通の人
-  KingParent: 1,   // 王ではないがその先祖の男
-  King: 2          // 王
+const EmperorKind = {
+  Normal: 0,       // 天皇ではない人
+  EmperorParent: 1,   // 天皇ではないがその先祖の男子
+  Emperor: 2          // 天皇
 }
 
 // ********** パラメーター **********
@@ -42,10 +42,10 @@ function TreeStat(){
 function createNode(person, nodeArr) {
   // 色
   let col = person.male ? "#bbccff" : "#ffcccc";
-  col = (person.king == KingKind.King) ? "#8888ff" : col;
-  col = (person.king == KingKind.KingParent) ? "#88ff88" : col;
+  col = (person.emperor == EmperorKind.Emperor) ? "#8888ff" : col;
+  col = (person.emperor == EmperorKind.EmperorParent) ? "#88ff88" : col;
   // 文字（王にのみ世代の数を表記）
-  let str = (person.king == KingKind.King) ? "  " + String(person.generation + 200) + "  " : "";
+  let str = (person.emperor == EmperorKind.Emperor) ? "  " + String(person.generation + 200) + "  " : "";
   nodeArr.push({ id: person.id, label: str, level: person.generation, color: col });
 }
 // エッジを一個生成
@@ -61,14 +61,14 @@ function getNodeAndEdgeRecurs(person, nodeArr, edgeArr, top) {
   }
   // 子のノードを作り、親子のエッジを作成
   for (let child of person.child) {
-    if (!g_Params.hideBranch || child.king != KingKind.Normal) {
+    if (!g_Params.hideBranch || child.emperor != EmperorKind.Normal) {
       createNode(child, nodeArr);
       createEdge(person, child, edgeArr);
     }
   }
   // 各子に対して再帰呼び出し
   for (let child of person.child) {
-    if (!g_Params.hideBranch || child.king != KingKind.Normal) {
+    if (!g_Params.hideBranch || child.emperor != EmperorKind.Normal) {
       getNodeAndEdgeRecurs(child, nodeArr, edgeArr, false);
     }
   }
@@ -135,7 +135,7 @@ function workerListener(message){
   }
 }
 
-// UIの宇内を取得し、上限下限に合わせてUIの値を変更し、値を返す
+// UIの値を取得し、上限下限に合わせてUIの値を変更し、値を返す
 function getAndLimitValue(ctrlStr, isInt, modifyUI){
   let val, min, max;
   if (isInt){
@@ -179,7 +179,7 @@ function getParams(modifyUI) {
 let g_UpdateCount = 0;
 let g_UpdateUICount = 0;
 let g_Worker = null;
-let g_WorkerWorking = false;
+let g_WorkerWoremperor = false;
 
 // 表示ツリーと統計情報の更新
 function updateTreeMain(){
@@ -189,14 +189,14 @@ function updateTreeMain(){
     // パラメーターを取得
     getParams(false);
     // ワーカーが動いていたら（または初回なら）止めてワーカーを再生成
-    if (g_WorkerWorking || g_Worker == null){
+    if (g_WorkerWoremperor || g_Worker == null){
       if (g_Worker != null){
         g_Worker.terminate();
       }
       g_Worker = new Worker("app/keizu_tree.js");
     }
     // 別スレッドでツリーを生成＆統計計算、ツリーと統計情報をこのスレッドで取得して表示
-    g_WorkerWorking = true;
+    g_WorkerWoremperor = true;
     g_Worker.addEventListener("message", workerListener, false);
     g_Worker.postMessage(g_Params);
   }
