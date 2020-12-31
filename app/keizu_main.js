@@ -36,7 +36,7 @@ function TreeStat(){
   this.numNoAnc = 0;        // 子に継承できた回数
 }
 
-// ********** 表示関数 **********
+// ********** ツリー表示関数 **********
 
 // ノードを一個生成
 function createNode(person, nodeArr) {
@@ -92,6 +92,24 @@ function displayMain(person) {
   var network = new vis.Network(container, data, options);
 }
 
+// ********** グラフ表示 **********
+function displayGraph(statstat){
+  // 成功率円グラフ
+  let data = {
+    labels: ['成功', ' '],
+    series: [statstat.ratio, 100 - statstat.ratio]
+  };
+  let options = {
+  };
+  new Chartist.Pie('.ct_pie', data, options);
+  // 最高遡り数ヒストグラム TODO:
+  let data2 = {
+    labels: ['1', '2', '3', '4', '5'],
+    series: [[30, 20, 10, 5, 3]]
+  }
+  new Chartist.Bar('.ct_hist', data2, options);  
+}
+
 // ********** ツリーの生成と統計処理 **********
 
 // ツリーの生成と表示
@@ -132,7 +150,9 @@ function workerListener(message){
       "代継承成功率:" + statstat.ratio.toFixed(1) + "% " + 
       " 平均最高遡り数:" + statstat.max.toFixed(1) +
       " 子供継承率:" + statstat.child.toFixed(1) + "%");
-  }
+      // グラフ表示
+      displayGraph(statstat);
+    }
 }
 
 // UIの値を取得し、上限下限に合わせてUIの値を変更し、値を返す
