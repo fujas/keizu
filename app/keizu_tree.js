@@ -13,13 +13,17 @@ function TreeStat(){
   this.numNoAnc = 0;        // 子に継承できた回数
 }
 
-// 統計計算用パラメーター
+// 統計計算保持用パラメーター
 function StatisticsParams(){
   this.numSuccess = 0;
   this.maxAnc = 0;
+  this.maxAncs = [];
   this.noAnc = 0;
   this.currIndex = 0;
   this.updateProgress = false;
+  for (let i = 0; i < g_Params.ancLimit; i++){
+    this.maxAncs[i] = 0;
+  }
 }
 let g_Statistics;
 let g_Params;
@@ -292,6 +296,7 @@ function calcStatistics(){
     if (stat.success){
       g_Statistics.numSuccess++;
       g_Statistics.maxAnc += stat.maxAnc;
+      g_Statistics.maxAncs[stat.maxAnc - 1]++;
       g_Statistics.noAnc += stat.numNoAnc;
     }
     // １％ごとに進捗情報をメインスレッドにポスト
@@ -308,9 +313,12 @@ function calcStatistics(){
   if (g_Statistics.numSuccess > 0){
     g_Statistics.maxAnc = g_Statistics.maxAnc / g_Statistics.numSuccess;
     g_Statistics.noAnc = 100.0 * (g_Statistics.noAnc / g_Statistics.numSuccess) / (g_Params.generation - 1);
+    for (let i = 0; i < g_Params.ancLimit; i++){
+      g_Statistics.maxAncs[i] = 100.0 * g_Statistics.maxAncs[i] / g_Statistics.numSuccess;
+    }
   }
   // 統計結果を返す
-  let statStat = { ratio: successRat, max: g_Statistics.maxAnc, child: g_Statistics.noAnc };
+  let statStat = { ratio: successRat, max: g_Statistics.maxAnc, maxs: g_Statistics.maxAncs, child: g_Statistics.noAnc };
   return statStat;
 }
 

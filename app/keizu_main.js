@@ -100,14 +100,25 @@ function displayGraph(statstat){
     series: [statstat.ratio, 100 - statstat.ratio]
   };
   let options = {
+    width: '50%'
   };
   new Chartist.Pie('.ct_pie', data, options);
-  // 最高遡り数ヒストグラム TODO:
+
+  // 最高遡り数ヒストグラム
   let data2 = {
-    labels: ['1', '2', '3', '4', '5'],
-    series: [[30, 20, 10, 5, 3]]
+    labels: [],
+    series: [[]]
+  };
+  for (let i = 0; i < statstat.maxs.length; i++){
+    data2.labels[i] = i + 1;
+    data2.series[0][i] = statstat.maxs[i];
   }
-  new Chartist.Bar('.ct_hist', data2, options);  
+  let options2 = {
+    axisX: { offset: 0, scaleMinSpace: 100 },
+    width: '50%',
+    seriesBarDistance: 0,
+  };
+  new Chartist.Bar('.ct_hist', data2, options2);
 }
 
 // ********** ツリーの生成と統計処理 **********
