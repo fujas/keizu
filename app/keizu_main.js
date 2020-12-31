@@ -96,29 +96,51 @@ function displayMain(person) {
 function displayGraph(statstat){
   // 成功率円グラフ
   let data = {
-    labels: ['成功', ' '],
-    series: [statstat.ratio, 100 - statstat.ratio]
-  };
-  let options = {
-    width: '50%'
-  };
-  new Chartist.Pie('.ct_pie', data, options);
+    bindto: '#c3_pie',
+    data: {
+      columns: [
+        ['継承成功', statstat.ratio],
+        ['失敗', 100 - statstat.ratio],
+      ],
+      type: 'pie',
+      order: null
+    }
+  }
+  let chart = c3.generate(data);
 
   // 最高遡り数ヒストグラム
   let data2 = {
-    labels: [],
-    series: [[]]
-  };
-  for (let i = 0; i < statstat.maxs.length; i++){
-    data2.labels[i] = i + 1;
-    data2.series[0][i] = statstat.maxs[i];
+    bindto: '#c3_hist',
+    data: {
+      columns: [
+        ['x'],
+        ['遡り数の頻度(%)'],
+      ],
+      x: 'x',
+      type: 'bar',
+    },
+    axis: {
+      x: { label: { 
+        text: '最高遡り数(代)',
+        position: 'outer-center'
+      } },
+      y: { label: { 
+        text: '頻度(%)',
+        position: 'outer-middle'
+      } }
+    },
+    grid: { y: {
+          show: true  // Y軸グリッド表示
+    } },
+    legend: {
+      show: false     // 凡例非表示
+    },
   }
-  let options2 = {
-    axisX: { offset: 0, scaleMinSpace: 100 },
-    width: '50%',
-    seriesBarDistance: 0,
-  };
-  new Chartist.Bar('.ct_hist', data2, options2);
+  for (let i = 0; i < statstat.maxs.length; i++){
+    data2.data.columns[0][i + 1] = i + 1;
+    data2.data.columns[1][i + 1] = statstat.maxs[i];
+  }
+  let chart2 = c3.generate(data2);
 }
 
 // ********** ツリーの生成と統計処理 **********

@@ -2,20 +2,20 @@
 <html>
   <head>
     <title>天皇継承シミュレーター</title>
-    <link rel="stylesheet" href="lib/chartist.min.css">
+    <link rel="stylesheet" href="lib/c3.min.css">
     <script type="text/javascript" src="lib/vis-network.min.js"></script>
-    <script type="text/javascript" src="lib/chartist.min.js"></script>
+    <script type="text/javascript" src="lib/c3.min.js"></script>
+    <script type="text/javascript" src="lib/d3.min.js"></script>
     <style type="text/css">
       #mynetwork {
         height: 800px;
         border: 1px solid lightgray;
       }
-      #ct_pie{
+      #c3_pie{
         height: 150px;
       }
-      #ct_hist{
-        height: 150px;
-        stroke-width: 100px;
+      #c3_hist{
+        height: 200px;
       }
     </style>
   </head>
@@ -50,9 +50,9 @@
       </div>
     </details>
 
-    <div id="ct_pie" class="ct_pie ct-perfect-fourth">
+    <div id="c3_pie">
     </div>
-    <div id="ct_hist" class="ct_hist ct-perfect-fourth">
+    <div id="c3_hist">
     </div>
 
     <div id="i_statStat">
