@@ -1,0 +1,14 @@
+@charset "UTF-8";
+
+#c3_pie{
+  height: 150px;
+}
+#c3_hist{
+  height: 200px;
+}
+#mynetwork {
+    height: 800px;
+    width: 90%;
+    border: 1px solid lightgray;
+  }
+  
