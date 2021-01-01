@@ -10,5 +10,15 @@
     height: 800px;
     width: 90%;
     border: 1px solid lightgray;
-  }
+}
   
+.c_contents{
+    display:flex;
+    justify-content: space-between;
+}
+.c_kakuritsu{
+    width: 50%;
+}
+.c_keizu{
+    width: 50%;
+}

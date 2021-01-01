@@ -11,9 +11,13 @@
   </head>
 
   <body>
-    <div>
-      皇位継承シミュレーター<br><br>
+    <div id="i_title">
+      <h2>皇位継承シミュレーター</h2>
     </div>
+
+    <div class="c_contents">
+
+    <div class="c_kakuritsu">
     <div>
       <label for="i_numChild">子供の数（1～10）</label>
       <input type="number" id="i_numChild" value="2.5" min="1" max="10">
@@ -51,11 +55,13 @@
     <div id="i_statStat">
       確率情報
     </div>
-
-    <div>
-      <br>系図の例：
     </div>
-<div>
+
+    <div class="c_keizu">
+    <div>
+      系図の例：
+    </div>
+    <div>
       <label for="i_seed">表示系図パターン(1～100,000)</label>
       <input type="number" id="i_pattern" value="1" min="1" max="100000">
     </div>
@@ -74,6 +80,9 @@
     <div id="i_note">
       この系図は本サイトの著作権者の許可なく自由に転載可能です。
       ただし、図の中または近くに「(C)fujas 2021 本図は確率的に想定される系図のほんの一例です」と明記してください。
+    </div>
+    </div>
+
     </div>
     <script src="lib/jquery-3.5.1.slim.min.js"></script>
     <script type="text/javascript" src="app/keizu_main.js"></script>
