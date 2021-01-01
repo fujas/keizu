@@ -1,5 +1,5 @@
 //
-// 男子継承シミュレーター (C)Github/fujas 2020
+// 皇位継承シミュレーター (C)Github/fujas 2020
 //
 // 天皇を男子で継承するときの系図を、指定の条件でシミュレーションして作図します。
 // 系図の起点は「未来の架空の天皇」であり、その天皇まで同じ条件で継承されたものと仮定します。
@@ -114,14 +114,14 @@ function displayGraph(statstat){
     data: {
       columns: [
         ['x'],
-        ['遡り数の頻度(%)'],
+        [' '],
       ],
       x: 'x',
       type: 'bar',
     },
     axis: {
       x: { label: { 
-        text: '最高遡り数(代)',
+        text: '継承成功時の最高遡り数(代)',
         position: 'outer-center'
       } },
       y: { label: { 

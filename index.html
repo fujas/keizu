@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>天皇継承シミュレーター</title>
+    <title>皇位継承シミュレーター</title>
     <link rel="stylesheet" href="lib/c3.min.css">
     <script type="text/javascript" src="lib/vis-network.min.js"></script>
     <script type="text/javascript" src="lib/c3.min.js"></script>
@@ -11,7 +11,7 @@
 
   <body>
     <div>
-      天皇継承シミュレーター<br><br>
+      皇位継承シミュレーター<br><br>
     </div>
     <div>
       <label for="i_numChild">子供の数（1～10）</label>
@@ -39,17 +39,22 @@
       </div>
     </details>
 
+    <div>
+      <br>継承確率：
+    </div>
     <div id="c3_pie">
     </div>
     <div id="c3_hist">
     </div>
 
     <div id="i_statStat">
-      統計情報
+      確率情報
     </div>
 
-    <div><br></div>
     <div>
+      <br>系図の例：
+    </div>
+<div>
       <label for="i_seed">表示系図パターン(1～100,000)</label>
       <input type="number" id="i_pattern" value="1" min="1" max="100000">
     </div>

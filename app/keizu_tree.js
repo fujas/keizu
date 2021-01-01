@@ -315,6 +315,7 @@ function calcStatistics(){
     g_Statistics.noAnc = 100.0 * (g_Statistics.noAnc / g_Statistics.numSuccess) / (g_Params.generation - 1);
     for (let i = 0; i < g_Params.ancLimit; i++){
       g_Statistics.maxAncs[i] = 100.0 * g_Statistics.maxAncs[i] / g_Statistics.numSuccess;
+      g_Statistics.maxAncs[i] = g_Statistics.maxAncs[i].toFixed(1);
     }
   }
   // 統計結果を返す
