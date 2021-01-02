@@ -35,4 +35,12 @@
     .c_keizu{
         width: 95%;
     }
-    }
+}
+
+/**/
+.c_label{
+    text-align: right;
+}
+.c_input{
+    text-align: left;
+}
