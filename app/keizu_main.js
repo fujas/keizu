@@ -225,9 +225,11 @@ function getParams(modifyUI) {
   g_Params.numPattern *= 10000;
   g_Params.pattern = getAndLimitValue("#i_pattern", true, modifyUI);
   if (modifyUI){
+    // パターン最大値の表記と制限値を変える
     $("#i_dispPattern").text(
       "表示系図パターン(1～" + g_Params.numPattern.toFixed(0) + ")"
     );
+    $("#i_pattern").attr("max", g_Params.numPattern.toFixed(0));
   }
 }
 
