@@ -99,13 +99,13 @@ function displayGraph(statstat){
     bindto: '#c3_pie',
     data: {
       columns: [
-        ['継承成功', statstat.ratio],
-        ['失敗', 100 - statstat.ratio],
+        ['継承成功率', statstat.ratio],
       ],
-      type: 'pie',
+      type: 'gauge',
       order: null
     }
   }
+  data.data.columns[0][0] = g_Params.generation.toFixed(0) + "代継承成功率";
   let chart = c3.generate(data);
 
   // 最高遡り数ヒストグラム
@@ -154,9 +154,9 @@ function displayTree(treeInfo){
     displayMain(originData);
     // 成功か失敗かの文字を更新
     if (treeInfo.stat.success){
-      $("#i_stat").text("継承成功");
+      $("#i_stat").text("継承成功例(最高遡り数" + treeInfo.stat.maxAnc.toFixed(0) + ")");
     }else{
-      $("#i_stat").text("継承失敗");
+      $("#i_stat").text("継承失敗例(最高遡り数が" + g_Params.ancLimit.toFixed(0) + "を超過)");
     }
   }
 }
@@ -179,10 +179,8 @@ function workerListener(message){
   else{
     let statstat = message.data.statstat;
     $("#i_statStat").text(
-      g_Params.generation.toFixed(0) +
-      "代継承成功率:" + statstat.ratio.toFixed(1) + "% " + 
-      " 平均最高遡り数:" + statstat.max.toFixed(1) +
-      " 子供継承率:" + statstat.child.toFixed(1) + "%");
+      "平均最高遡り数: " + statstat.max.toFixed(1) +
+      "　嫡子継承率: " + statstat.child.toFixed(1) + "%");
       // グラフ表示
       displayGraph(statstat);
     }

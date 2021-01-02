@@ -1,5 +1,9 @@
 @charset "UTF-8";
 
+body{
+    background-color:rgb(250, 250, 250);
+}
+
 /* グラフ領域のサイズ */
 #c3_pie{
   height: 200px;
@@ -13,7 +17,7 @@
     border: 1px solid lightgray;
 }
 
-/* 全体のレイアウト */
+/* 全体のレイアウト（縦長画面） */
 .c_contents{
     display:flex;
     justify-content: space-between;
@@ -25,6 +29,7 @@
     width: 48%;
 }
 
+/* 全体のレイアウト（横長画面）*/
 @media (max-width: 700px){
     .c_contents{
         flex-direction: column;
@@ -37,13 +42,45 @@
     }
 }
 
-/**/
+/* 入力エリアのスタイル */
 .c_label{
     text-align: right;
+    color:rgb(54, 54, 54);
 }
 .c_input{
     text-align: left;
+    padding: 0px 0px 4px 6px;
 }
 .c_iform{
+    font-size:140%;
     width: 100px;
+    height: 24px;
+}
+
+/* 説明文のスタイル */
+.c_note{
+    font-size:90%;
+    color:rgb(90, 90, 90);
+}
+/* 一塊のスタイル */
+.c_title{
+    text-align: center;
+    color:rgb(216, 114, 18);
+}
+.c_part{
+    padding: 0px 0px 0px 0px;
+}
+/* 確率の表示 */
+.c_result{
+    text-align: center;
+    padding: 8px 0px 0px 0px;
+}
+/* c3.jsグラフのフォント */
+.c3-axis-y text 
+{ 
+    font-size: 14px;
+} 
+.c3-axis-x text 
+{ 
+    font-size: 14px;
 }
