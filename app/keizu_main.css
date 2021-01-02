@@ -1,24 +1,38 @@
 @charset "UTF-8";
 
+/* グラフ領域のサイズ */
 #c3_pie{
-  height: 150px;
+  height: 200px;
 }
 #c3_hist{
   height: 200px;
 }
 #mynetwork {
-    height: 800px;
-    width: 90%;
+    height: 700px;
+    width: 98%;
     border: 1px solid lightgray;
 }
-  
+
+/* 全体のレイアウト */
 .c_contents{
     display:flex;
     justify-content: space-between;
 }
 .c_kakuritsu{
-    width: 50%;
+    width: 48%;
 }
 .c_keizu{
-    width: 50%;
+    width: 48%;
 }
+
+@media (max-width: 700px){
+    .c_contents{
+        flex-direction: column;
+    }
+    .c_kakuritsu{
+        width: 95%;
+    }
+    .c_keizu{
+        width: 95%;
+    }
+    }
