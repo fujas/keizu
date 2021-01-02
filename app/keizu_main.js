@@ -179,7 +179,7 @@ function workerListener(message){
   else{
     let statstat = message.data.statstat;
     $("#i_statStat").text(
-      "平均最高遡り数: " + statstat.max.toFixed(1) +
+      "平均最高遡り数: " + statstat.max.toFixed(1) + "代" +
       "　嫡子継承率: " + statstat.child.toFixed(1) + "%");
       // グラフ表示
       displayGraph(statstat);
@@ -219,11 +219,16 @@ function getParams(modifyUI) {
   g_Params.numChild = getAndLimitValue("#i_numChild", false, modifyUI);
   g_Params.maleRatio = getAndLimitValue("#i_maleRatio", false, modifyUI);
   g_Params.generation = getAndLimitValue("#i_generation", true, modifyUI);
-  g_Params.pattern = getAndLimitValue("#i_pattern", true, modifyUI);
   g_Params.ancLimit = getAndLimitValue("#i_ancLimit", true, modifyUI);
   g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
   g_Params.numPattern = getAndLimitValue("#i_numPattern", true, modifyUI);
   g_Params.numPattern *= 10000;
+  g_Params.pattern = getAndLimitValue("#i_pattern", true, modifyUI);
+  if (modifyUI){
+    $("#i_dispPattern").text(
+      "表示系図パターン(1～" + g_Params.numPattern.toFixed(0) + ")"
+    );
+  }
 }
 
 // 系図の更新
