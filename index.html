@@ -13,10 +13,10 @@
   <body>
     <div id="i_title" class="c_part">
       <div class="c_title">
-        <h3>皇位継承シミュレーター</h3>
+        <h2>皇位継承シミュレーター</h2>
       </div>
       <div class="c_note">
-        指定の条件で皇位を30代（おおよそ千年）男系で継承できる確率と、想定される系図の例を表示します。
+        皇位継承はできれば男系で続けたい。男系で継承できるのか？どうすれば安定して継承できるのか？を検討するシミュレーターです。指定の条件で皇位を30代（おおよそ千年）継承できる確率と、想定される系図の例を表示します。
       </div>
     </div>
 
@@ -27,7 +27,7 @@
     <h3>設定</h3>
     <table>  
       <tr>
-      <td class="c_label">子供の数(1～10)</td>
+      <td class="c_label">天皇の子の数(1～10)</td>
       <td class="c_input"><input type="number" class="c_iform" id="i_numChild" value="3.5" min="1.0" max="10.0"></td>
       </tr>
       <tr>
@@ -56,10 +56,10 @@
     </details>
 
     <h3>継承成功率</h3>
-    <div id="c3_pie">
-    </div>
-    <div id="c3_hist">
-    </div>
+    <div id="c3_pie"></div>
+    <div id="i_seikouritsu" class="c_caption">30代継承成功率</div>
+    <div id="c3_hist"></div>
+    <div class="c_caption">継承成功時の最高遡り数(代)</div>
 
     <div id="i_statStat" class="c_result">
       確率情報

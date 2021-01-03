@@ -99,14 +99,17 @@ function displayGraph(statstat){
     bindto: '#c3_pie',
     data: {
       columns: [
-        ['継承成功率', statstat.ratio],
+        ['', statstat.ratio],
       ],
       type: 'gauge',
       order: null
-    }
+    },
+    legend: {
+      show: false     // 凡例非表示
+    },
   }
-  data.data.columns[0][0] = g_Params.generation.toFixed(0) + "代継承成功率";
   let chart = c3.generate(data);
+  $("#i_seikouritsu").text(g_Params.generation.toFixed(0) + "代継承成功率");
 
   // 最高遡り数ヒストグラム
   let data2 = {
@@ -120,10 +123,6 @@ function displayGraph(statstat){
       type: 'bar',
     },
     axis: {
-      x: { label: { 
-        text: '継承成功時の最高遡り数(代)',
-        position: 'outer-center'
-      } },
       y: { label: { 
         text: '頻度(%)',
         position: 'outer-middle'
@@ -171,9 +170,9 @@ function workerListener(message){
   }
   // 統計計算
   else if (message.data.type < 100){
-    $("#i_statStat").text(
-      "計算中 " + message.data.type.toFixed(0) + "%"
-    );
+    let progressText = "計算中 " + message.data.type.toFixed(0) + "%";
+    $("#i_seikouritsu").text(progressText);
+    $("#i_statStat").text(progressText);
   }
   // 統計結果
   else{
