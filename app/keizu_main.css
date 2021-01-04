@@ -66,6 +66,9 @@ body{
 }
 
 /* 説明文のスタイル */
+.c_noteTitle{
+    padding: 10px 0px 0px 0px;
+}
 .c_note{
     font-size:90%;
     color:rgb(90, 90, 90);
