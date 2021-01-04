@@ -42,6 +42,14 @@ body{
     }
 }
 
+/* ヘッダー、フッター */
+.c_header{
+    padding: 0px 14px 0px 14px;
+}
+.c_footer{
+    padding: 22px 14px 4px 14px;
+}
+
 /* 入力エリアのスタイル */
 .c_label{
     text-align: right;
