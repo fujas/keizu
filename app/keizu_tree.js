@@ -28,7 +28,6 @@ function StatisticsParams(){
 let g_Statistics;
 let g_Params;
 
-
 // ********** シード付き乱数 **********
 // "JavaScriptで再現性のある乱数を生成する + 指定した範囲の乱数を生成する" を参考にさせていただきました。
 let Random = (function () {
