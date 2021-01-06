@@ -93,6 +93,50 @@ function displayMain(person) {
 }
 
 // ********** グラフ表示 **********
+
+// 計算中のグラフ表示
+function displayGraphProgress(progress){
+  // 高速化のため最初だけ空のグラフを表示
+  if (progress == 1){
+    // 成功率円グラフ
+    let data = {
+      bindto: '#c3_pie',
+      data: {
+        columns: [
+          ['', 0],
+        ],
+        type: 'gauge',
+      },
+      legend: {
+        show: false     // 凡例非表示
+      },
+    }
+    let chart = c3.generate(data);
+
+    // 最高遡り数ヒストグラム
+    let data2 = {
+      bindto: '#c3_hist',
+      data: {
+        columns: [
+          ['x'],
+          [' '],
+        ],
+        x: 'x',
+        type: 'bar',
+      },
+      legend: {
+        show: false     // 凡例非表示
+      },
+    }
+    let chart2 = c3.generate(data2);
+  }
+  // 進捗文字列更新
+  let progressText = "計算中 " + progress.toFixed(0) + "%";
+  $("#i_seikouritsu").text(progressText);
+  $("#i_statStat").text(progressText);
+}
+
+// 結果グラフ表示
 function displayGraph(statstat){
   // 成功率円グラフ
   let data = {
@@ -109,6 +153,7 @@ function displayGraph(statstat){
     },
   }
   let chart = c3.generate(data);
+  // キャプション
   $("#i_seikouritsu").text(g_Params.generation.toFixed(0) + "代継承成功率");
 
   // 最高遡り数ヒストグラム
@@ -140,6 +185,11 @@ function displayGraph(statstat){
     data2.data.columns[1][i + 1] = statstat.maxs[i];
   }
   let chart2 = c3.generate(data2);
+
+  // 統計結果文字列
+  $("#i_statStat").text(
+    "平均最高遡り数: " + statstat.max.toFixed(1) + "代" +
+    "　嫡子継承率: " + statstat.child.toFixed(1) + "%");
 }
 
 // ********** ツリーの生成と統計処理 **********
@@ -168,21 +218,14 @@ function workerListener(message){
   if (message.data.type == 0){
     displayTree(message.data.tree);
   }
-  // 統計計算
+  // 統計計算中
   else if (message.data.type < 100){
-    let progressText = "計算中 " + message.data.type.toFixed(0) + "%";
-    $("#i_seikouritsu").text(progressText);
-    $("#i_statStat").text(progressText);
+    displayGraphProgress(message.data.type);
   }
   // 統計結果
   else{
-    let statstat = message.data.statstat;
-    $("#i_statStat").text(
-      "平均最高遡り数: " + statstat.max.toFixed(1) + "代" +
-      "　嫡子継承率: " + statstat.child.toFixed(1) + "%");
-      // グラフ表示
-      displayGraph(statstat);
-    }
+    displayGraph(message.data.statstat);
+  }
 }
 
 // UIの値を取得し、上限下限に合わせてUIの値を変更し、値を返す
@@ -298,5 +341,5 @@ function applyEventFunc() {
 applyEventFunc();
 // パラメータ初期値をhtmlから取得
 getParams(false);
-// ツリーの1つの生成と表示
+// ツリーと統計情報の計算と表示
 updateTree();
