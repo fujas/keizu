@@ -59,7 +59,12 @@ let Random = (function () {
 let g_myRnd = new Random(1);
 
 function resetRnd(seed){
-  g_myRnd = new Random(seed); // パターンIDを乱数シードにする
+  // パターンIDを乱数シードにする
+  g_myRnd = new Random(seed);
+  // シード設定直後は偏りが多いので何回か乱数生成
+  for(let i = 0; i < 10; i++){
+    g_myRnd.get();
+  }
 }
 
 // ********** 数値制御関数 **********
