@@ -52,20 +52,14 @@ let Random = (function () {
     const limit = 10000;
     let random = (Math.abs(this.w) % limit) / limit;
     return random;
-    //return Math.random(); // 乱数性能確認用コード
   }
 
   return Random;
 })();
-let g_myRnd;
+let g_myRnd = new Random(1);
 
 function resetRnd(seed){
-  // パターンIDを乱数シードにする
-  g_myRnd = new Random(seed);
-  // シード設定直後は偏りが多いので何回か乱数生成
-  for(let i = 0; i < 10; i++){
-    g_myRnd.get();
-  }
+  g_myRnd = new Random(seed); // パターンIDを乱数シードにする
 }
 
 // ********** 数値制御関数 **********

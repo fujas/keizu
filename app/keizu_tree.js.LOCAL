@@ -52,12 +52,11 @@ let Random = (function () {
     const limit = 10000;
     let random = (Math.abs(this.w) % limit) / limit;
     return random;
-    //return Math.random(); // 乱数性能確認用コード
   }
 
   return Random;
 })();
-let g_myRnd;
+let g_myRnd = new Random(1);
 
 function resetRnd(seed){
   // パターンIDを乱数シードにする
