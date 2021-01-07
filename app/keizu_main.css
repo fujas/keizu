@@ -10,36 +10,49 @@ body{
 }
 #c3_hist{
   height: 200px;
+  margin: 0px 20px 0px 10px;
 }
 #mynetwork {
     height: 700px;
-    width: 98%;
+    width: 100%;
     border: 1px solid lightgray;
 }
 
-/* 全体のレイアウト（縦長画面） */
+/* 全体のレイアウト（横長画面） */
 .c_contents{
     display:flex;
     justify-content: space-between;
 }
 .c_kakuritsu{
-    width: 48%;
+    width: 50%;
+}
+.c_kakuritsuInside{
+    margin: 0px 24px 0px 20px;
 }
 .c_keizu{
-    width: 48%;
+    width: 50%;
 }
 
-/* 全体のレイアウト（横長画面）*/
+/* 全体のレイアウト（縦長画面）*/
 @media (max-width: 700px){
     .c_contents{
         flex-direction: column;
     }
     .c_kakuritsu{
-        width: 95%;
+        width: 100%;
+    }
+    .c_kakuritsuInside{
+        margin: 0px 14px 0px 14px;
     }
     .c_keizu{
-        width: 95%;
+        width: 100%;
     }
+    .c_keizuInside{
+        margin: 0px 14px 0px 14px;
+    }
+    .c_networkOutside {
+        padding: 0px 30px 0px 0px;
+    }    
 }
 
 /* ヘッダー、フッター */
@@ -77,9 +90,9 @@ body{
 .c_title{
     text-align: center;
 }
-.c_part{
+/*.c_part{
     padding: 0px 0px 0px 0px;
-}
+}*/
 /* 確率の表示 */
 .c_result{
     text-align: center;
