@@ -86,8 +86,11 @@ body{
     font-size:90%;
     color:rgb(90, 90, 90);
 }
-.c_detail{
+details{
     margin: 10px 0px 0px 0px;
+}
+summary{
+    color:rgb(90, 90, 90);
 }
 /* 一塊のスタイル */
 .c_title{
