@@ -32,9 +32,6 @@ body{
 .c_keizu{
     width: 50%;
 }
-.c_image{
-    text-align: center;
-}
 
 /* 全体のレイアウト（縦長画面）*/
 @media (max-width: 700px){
@@ -56,10 +53,9 @@ body{
     .c_networkOutside {
         padding: 0px 30px 0px 0px;
     }    
-    .c_image{
+    .c_imgsize{
         width: 80%;
-        text-align: center;
-    }    
+    }
 }
 
 /* ヘッダー、フッター */
@@ -122,4 +118,7 @@ summary{
 }
 .c_kousatsu{
     color:rgb(0, 0, 0);
+}
+.c_image{
+    text-align: center;
 }
