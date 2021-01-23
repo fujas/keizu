@@ -207,12 +207,15 @@ function findRoot(person) {
 function backTrackPrince(person, targetGeneration, stat) {
   let parent = person;
   do {
+    // 設定次第では初代より遡らない
+    if (g_Params.originTop == true && parent.generation <= 1){
+      return null;
+    }
     // 最高遡り数を統計情報に記録
     let ancSize = targetGeneration - parent.generation;
     stat.maxAnc = (ancSize + 1 > stat.maxAnc) ? ancSize + 1 : stat.maxAnc;
     // 遡る限度に達していたらnullを返す
-   // if (parent.generation <= targetGeneration - g_Params.ancLimit){
-      if (ancSize >= g_Params.ancLimit){
+    if (ancSize >= g_Params.ancLimit){
         return null;
     }
     // 1世代遡る

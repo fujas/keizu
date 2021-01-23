@@ -24,6 +24,7 @@ function Params() {
   this.generation = 1;    // 生成する世代の数
   this.pattern = 1;       // 生成パターン数
   this.ancLimit = 1;      // 先祖を遡る世代の上限（父なら１、祖父なら２）
+  this.originTop = false; // 初代の先祖より遡るなら false
   this.hideBranch = false; // 表示時に直系以外を隠す
   this.numPattern = 1;    // 統計計算時パターン総数
 }
@@ -262,6 +263,7 @@ function getParams(modifyUI) {
   g_Params.maleRatio = getAndLimitValue("#i_maleRatio", false, modifyUI);
   g_Params.generation = getAndLimitValue("#i_generation", true, modifyUI);
   g_Params.ancLimit = getAndLimitValue("#i_ancLimit", true, modifyUI);
+  g_Params.originTop = ($('[id="i_originTop"]:checked').val() == "on") ? true : false;
   g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
   g_Params.numPattern = getAndLimitValue("#i_numPattern", true, modifyUI);
   g_Params.numPattern *= 10000;
@@ -330,6 +332,7 @@ function applyEventFunc() {
   $("#i_maleRatio").bind('keyup mouseup', updateTree);
   $("#i_generation").bind('keyup mouseup', updateTree);
   $("#i_pattern").bind('keyup mouseup', updateTree);
+  $("#i_originTop").bind('keyup mouseup', updateTree);
   $("#i_ancLimit").bind('keyup mouseup', updateTree);
   $("#i_hideBranch").bind('keyup mouseup', updateTree);
   $("#i_numPattern").bind('keyup mouseup', updateTree);
