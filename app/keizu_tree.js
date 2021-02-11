@@ -122,46 +122,20 @@ let Person = (function () {
 
   // Getter
   p.getParent = function () { return this.parent; }
+  p.getChilds = function () { return this.child; }
   // Setter
   p.setEmperor = function (kind) { this.emperor = kind; }
 
   // 子供生成関数
   p.createChildren = function () {
-    if (this.male) {
-      let currChild = this.child.length;  // 既に存在する子供の数
-      let numChild = defineNumChild();    // 生まれるべき全部の子供の数
-      let gene = this.generation + 1;     // １世代あとに設定
-      // 子供生成ループ。currChild >= numChild なら何もしない。
-      for (let i = currChild; i < numChild; i++) {
-        // 子供を生成。性別は確率で決まる
-        this.child[i] = new Person(this, getNewID(), gene, defineMale());
-      }
+    let currChild = this.child.length;  // 既に存在する子供の数
+    let numChild = defineNumChild();    // 生まれるべき全部の子供の数
+    let gene = this.generation + 1;     // １世代あとに設定
+    // 子供生成ループ。currChild >= numChild なら何もしない。
+    for (let i = currChild; i < numChild; i++) {
+      // 子供を生成。性別は確率で決まる
+      this.child[i] = new Person(this, getNewID(), gene, defineMale());
     }
-  }
-/*
-  // 親生成関数
-  p.createParent = function () {
-    let gene = this.generation - 1;
-    let parent = new Person(null, getNewID(), gene, true); // １世代前の男として生成
-    parent.child[0] = this;     // 自分を子供に設定
-    this.parent = parent;       // 自分の親を設定
-    parent.createChildren();    // 自分の兄弟姉妹を生成
-    return parent;
-  }
-*/
-  // 世継ぎ取得関数
-  p.getPrince = function () {
-    // 子供を生成
-    this.createChildren();
-    // 子供に男がいればそれを返す
-    for (let child of this.child) {
-      // 男系子孫が途絶えていない男だけを探す
-      if (child.male) {
-        return child;
-      }
-    }
-    // 男がいなければnull
-    return null;
   }
 
   return Person;
@@ -229,11 +203,13 @@ function forwardTrackPrince(person, stat) {
 */
 
 function createNextGeneration(prevs, nexts, stat){
-  for (let i = 0; i < prevs.length; i++){
-    if (prevs[i] != null){
-      nexts[i] = prevs[i].getPrince();
+  let nextInd = 0;
+  for (let prev of prevs){
+    if (prev != null){
+      prev.createChildren();
+      nexts[nextInd] = prev.getChilds()[0];
+      nextInd++;
     }
-
   }
   return true;
 }
