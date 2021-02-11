@@ -28,6 +28,8 @@ function Params() {
 
   this.hideBranch = false; // 表示時に直系以外を隠す
   this.numPattern = 1;    // 統計計算時パターン総数
+
+  this.ancLimit = 10;     // 最高遡り数のグラフでの上限（固定）
 }
 let g_Params = new Params();
 

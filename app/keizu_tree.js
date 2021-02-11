@@ -21,9 +21,9 @@ function StatisticsParams(){
   this.noAnc = 0;
   this.currIndex = 0;
   this.updateProgress = false;
-  //for (let i = 0; i < g_Params.ancLimit; i++){
-  //  this.maxAncs[i] = 0;
-  //}
+  for (let i = 0; i < g_Params.generation; i++){
+    this.maxAncs[i] = 0;
+  }
 }
 let g_Statistics;
 let g_Params;
@@ -123,6 +123,7 @@ let Person = (function () {
   // Getter
   p.getParent = function () { return this.parent; }
   p.getChilds = function () { return this.child; }
+  p.getEmperor = function () { return this.emperor; }
   // Setter
   p.setEmperor = function (kind) { this.emperor = kind; }
 
@@ -144,21 +145,27 @@ let Person = (function () {
 // ********** １世代先の世継ぎを生成する関数群 **********
 
 // 天皇の先祖にフラグを付ける
-function setFlagToEmperorParents(emperor) {
+function setFlagToEmperorParents(emperor, stat) {
   // emperorが天皇であるかチェック。
   if (emperor.emperor != EmperorKind.Emperor) {
     return;
   }
 
   let parent = emperor;
+  let numAnc = 1;
   while (1) {
     // 親がいない、またはすでに天皇か天皇の祖先なら処理終了。
     parent = parent.getParent();
     if (parent == null || parent.emperor != EmperorKind.Normal) {
-      return;
+      break;
     }
     // 天皇の先祖フラグを付ける。
     parent.emperor = EmperorKind.EmperorParent;
+    numAnc++;
+  }
+
+  if (stat.maxAnc < numAnc){
+    stat.maxAnc = numAnc;
   }
 }
 
@@ -187,8 +194,6 @@ function createNextGeneration(prevs, nexts, stat){
   }
   // 次世代皇族が一人以上なら
   if (nextInd > 0){
-    // 最初に設定された男子は天皇になる
-    nexts[0].emperor = EmperorKind.Emperor;
     return true;
   }
   // 次世代皇族が０なら継承失敗
@@ -214,6 +219,17 @@ function createTrees(stat) {
       stat.success = false;
       break;
     }
+    // 最初に設定された男子は天皇になる
+    let prince = nexts[0];
+    prince.setEmperor(EmperorKind.Emperor);
+    //
+    if (prince.getParent().getEmperor() == EmperorKind.Emperor){
+      stat.numNoAnc++;                  // 親から継承できたときの統計情報
+    }
+    else{
+      setFlagToEmperorParents(prince, stat);  // 親戚が天皇になったときは先祖にフラグを設定
+    }
+
     //if (prince.getParent() == person){
     //  stat.numNoAnc++;  // 親から継承できたときの統計情報
     //}
@@ -234,7 +250,7 @@ function createTrees(stat) {
 }
 
 // ********** 統計情報を計算 **********
-/*
+
 // 統計を取る
 function calcStatistics(){
   // パターン数だけツリーを生成
@@ -244,7 +260,7 @@ function calcStatistics(){
     resetRnd(i);
     // ツリーを生成
     let stat = new TreeStat();
-    let origin = createTree(stat);
+    let origins = createTrees(stat);
     // 成功時は統計情報を取得
     if (stat.success){
       g_Statistics.numSuccess++;
@@ -266,16 +282,21 @@ function calcStatistics(){
   if (g_Statistics.numSuccess > 0){
     g_Statistics.maxAnc = g_Statistics.maxAnc / g_Statistics.numSuccess;
     g_Statistics.noAnc = 100.0 * (g_Statistics.noAnc / g_Statistics.numSuccess) / (g_Params.generation - 1);
-    for (let i = 0; i < g_Params.ancLimit; i++){
+    let ancLength = 0;
+    for (let i = 0; i < g_Params.generation; i++){
       g_Statistics.maxAncs[i] = 100.0 * g_Statistics.maxAncs[i] / g_Statistics.numSuccess;
+      if (g_Statistics.maxAncs[i] > 0.06){
+        ancLength = i;
+      }
       g_Statistics.maxAncs[i] = g_Statistics.maxAncs[i].toFixed(1);
     }
+    g_Statistics.maxAncs.length = ancLength + 1;
   }
   // 統計結果を返す
   let statStat = { ratio: successRat, max: g_Statistics.maxAnc, maxs: g_Statistics.maxAncs, child: g_Statistics.noAnc };
   return statStat;
 }
-*/
+
 // ********** イベント処理 **********
 
 // workerスレッドメイン
@@ -292,7 +313,6 @@ self.addEventListener('message', function(params) {
   let retVal = { type: 0, tree:treeInfo };
   self.postMessage(retVal);
 
-  /*
   // 続けて統計処理
   g_Statistics = new StatisticsParams();
   // 統計情報の計算
@@ -300,5 +320,5 @@ self.addEventListener('message', function(params) {
   // 結果を送信
   let retVal2 = { type: 100, statstat:statStat };
   self.postMessage(retVal2);
-  */
+
 }, false);
