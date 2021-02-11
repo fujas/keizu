@@ -161,47 +161,8 @@ function setFlagToEmperorParents(emperor) {
     parent.emperor = EmperorKind.EmperorParent;
   }
 }
-/*
-// 生成した最も前の世代の人物を返す
-function findRoot(person) {
-  let rootParent = person;
-  while (rootParent.getParent() != null) {
-    rootParent = rootParent.getParent();
-  }
-  return rootParent;
-}
-*/
-/*
-// 1世代先の世継ぎを作る
-function forwardTrackPrince(person, stat) {
 
-  let prince = null;
-  let parent = person;
-  let targetGeneration = person.generation + 1;
-  do {
-    // 子孫が途絶えていない男子を探す
-    parent.createChildren();
-    prince = parent.getPrince();
-
-    // 男子がいないとき
-    if (prince == null) {
-      parent.setNoFamily(); // 断絶フラグを設定
-      // 親をさかのぼった男子を取得
-      prince = backTrackPrince(parent, targetGeneration, stat);
-    }
-    // 先祖が遠すぎて断念したときはnullを返す
-    if (prince == null) {
-      return null;
-    }
-
-    // 規定の世代まで王子を生成
-    parent = prince;
-  } while (prince.generation < targetGeneration);
-
-  return prince;
-}
-*/
-
+// 次世代の皇族を生成
 function createNextGeneration(prevs, nexts, stat){
   nexts.length = 0;
   let nextInd = 0;
@@ -244,7 +205,7 @@ function createTrees(stat) {
   }
   origins[0].setEmperor(EmperorKind.Emperor);
 
-  // １代ずつ子孫を生成（1度のforward呼び出しでもできそうだが、処理を簡潔にするため分ける）
+  // １代ずつ次世代皇族を生成
   let prevs = origins;
   let nexts = [];
   let nexts2 = [];

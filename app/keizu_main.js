@@ -264,8 +264,8 @@ function getParams(modifyUI) {
   g_Params.numChild = getAndLimitValue("#i_numChild", false, modifyUI);
   g_Params.maleRatio = getAndLimitValue("#i_maleRatio", false, modifyUI);
   g_Params.generation = getAndLimitValue("#i_generation", true, modifyUI);
-  //g_Params.ancLimit = getAndLimitValue("#i_ancLimit", true, modifyUI);
-  //g_Params.originTop = ($('[id="i_originTop"]:checked').val() == "on") ? true : false;
+  g_Params.numFamilyStart = getAndLimitValue("#i_numFamilyStart", true, modifyUI);
+  g_Params.numFamilyMax = getAndLimitValue("#i_numFamilyMax", true, modifyUI);
   g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
   g_Params.numPattern = getAndLimitValue("#i_numPattern", true, modifyUI);
   g_Params.numPattern *= 10000;
@@ -334,8 +334,8 @@ function applyEventFunc() {
   $("#i_maleRatio").bind('keyup mouseup', updateTree);
   $("#i_generation").bind('keyup mouseup', updateTree);
   $("#i_pattern").bind('keyup mouseup', updateTree);
-  //$("#i_originTop").bind('keyup mouseup', updateTree);
-  //$("#i_ancLimit").bind('keyup mouseup', updateTree);
+  $("#i_numFamilyStart").bind('keyup mouseup', updateTree);
+  $("#i_numFamilyMax").bind('keyup mouseup', updateTree);
   $("#i_hideBranch").bind('keyup mouseup', updateTree);
   $("#i_numPattern").bind('keyup mouseup', updateTree);
 }
