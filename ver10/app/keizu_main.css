@@ -1,0 +1,125 @@
+@charset "UTF-8";
+
+body{
+    background-color:rgb(250, 250, 250);
+}
+
+/* グラフ領域のサイズ */
+#c3_pie{
+  height: 200px;
+}
+#c3_hist{
+  height: 200px;
+  margin: 0px 20px 0px 10px;
+}
+#mynetwork {
+    height: 700px;
+    width: 100%;
+    border: 1px solid lightgray;
+}
+
+/* 全体のレイアウト（横長画面） */
+.c_contents{
+    display:flex;
+    justify-content: space-between;
+}
+.c_kakuritsu{
+    width: 50%;
+}
+.c_kakuritsuInside{
+    margin: 0px 24px 0px 20px;
+}
+.c_keizu{
+    width: 50%;
+}
+
+/* 全体のレイアウト（縦長画面）*/
+@media (max-width: 700px){
+    .c_contents{
+        flex-direction: column;
+    }
+    .c_kakuritsu{
+        width: 100%;
+    }
+    .c_kakuritsuInside{
+        margin: 0px 14px 0px 14px;
+    }
+    .c_keizu{
+        width: 100%;
+    }
+    .c_keizuInside{
+        margin: 0px 14px 0px 14px;
+    }
+    .c_networkOutside {
+        padding: 0px 30px 0px 0px;
+    }    
+    .c_imgsize{
+        width: 80%;
+    }
+}
+
+/* ヘッダー、フッター */
+.c_header{
+    padding: 0px 14px 0px 14px;
+}
+.c_footer{
+    padding: 22px 14px 4px 14px;
+}
+
+/* 入力エリアのスタイル */
+.c_label{
+    text-align: right;
+    color:rgb(54, 54, 54);
+}
+.c_input{
+    text-align: left;
+    padding: 0px 0px 4px 6px;
+}
+.c_iform{
+    font-size:140%;
+    width: 100px;
+    height: 24px;
+}
+
+/* 説明文のスタイル */
+.c_noteTitle{
+    padding: 10px 0px 0px 0px;
+}
+.c_note{
+    font-size:90%;
+    color:rgb(90, 90, 90);
+}
+details{
+    margin: 10px 0px 0px 0px;
+}
+summary{
+    color:rgb(90, 90, 90);
+}
+/* 一塊のスタイル */
+.c_title{
+    text-align: center;
+}
+/*.c_part{
+    padding: 0px 0px 0px 0px;
+}*/
+/* 確率の表示 */
+.c_result{
+    text-align: center;
+    padding: 8px 0px 0px 0px;
+}
+/* c3.jsグラフのフォント */
+.c3-axis-y text 
+{ 
+    font-size: 15px;
+} 
+.c_caption{
+    text-align: center;
+    color:rgb(100, 100, 100);
+}
+.c_kousatsu{
+    color:rgb(0, 0, 0);
+    font-size:125%;
+}
+.c_image{
+    text-align: center;
+}

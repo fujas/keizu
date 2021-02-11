@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>皇位継承シミュレーター</title>
+    <link rel="stylesheet" href="lib/c3.min.css">
+    <script type="text/javascript" src="lib/vis-network.min.js"></script>
+    <script type="text/javascript" src="lib/c3.min.js"></script>
+    <script type="text/javascript" src="lib/d3.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="app/keizu_main.css">
+  </head>
+
+  <body>
+    <header id="i_title" >
+      <div class="c_title">
+        <h2>皇位継承シミュレーター(Ver1.0)</h2>
+      </div>
+      <div class="c_header">
+        <div class="c_note">
+          できれば男系で皇位継承したい。男系で継承できるのか？どうすれば安定して継承できるのか？を検討するシミュレーターです。指定の条件で皇位を30代（おおよそ千年）継承できる確率と、想定される系図の例を表示します。皇位継承問題と男系・女系をよく知らない方は、まずは<a href="https://www.youtube.com/watch?v=fE9F_IrvxBA" target="_blank">こちらの動画（皇位継承問題とは？ YouTube）</a>がおすすめです。
+        </div>
+        <details>
+          <summary>解説</summary>
+          <div class="c_note">このシミュレーターでは、指定した「子供の数」と「男子の割合」で男系天皇を30代継続できるかどうかを計算します。子供の性別は乱数で決めつつ、30代続く系図を10万回作ります。系図を作る過程で子供がすべて女子であれば先祖を遡って親戚の男系男子を探しますが、指定した「遡る世代の上限」までさかのぼっても男系男子がいない場合は継承が失敗したものとします。10万回系図を作った中で、30代継承できた割合を継承成功率としています。起点となるのは「未来の架空の天皇」であり、その天皇まで同じ条件で継承されていると仮定します（なので、初代からさらに先祖にさかのぼることもあります）。兄弟間の継承は考慮していません。なお、30代・10万回の設定値は変えられます。</div>
+        </details>
+      </div>
+    </header>
+
+    <div class="c_contents">
+
+  <div class="c_kakuritsu">
+  <div class="c_kakuritsuInside">
+
+    <h3>設定</h3>
+    <table>  
+      <tr>
+      <td class="c_label">天皇の子の数(1～10)</td>
+      <td class="c_input"><input type="number" class="c_iform" id="i_numChild" value="3.5" min="1.0" max="10.0"></td>
+      </tr>
+      <tr>
+      <td class="c_label">男子の割合(％)</td>
+      <td class="c_input"><input type="number" class="c_iform" id="i_maleRatio" value="51.3" min="10.0" max="100.0"></td>
+      </tr>
+      <tr>
+      <td class="c_label">遡る世代の上限(1～20)</td>
+      <td class="c_input"><input type="number" class="c_iform" id="i_ancLimit" value="3" min="1" max="20"></td>
+      </tr>
+    </table>
+
+    <details>
+      <summary>詳細設定</summary>
+      <table>  
+        <tr>
+          <td class="c_label">初代以前には遡らない</td>
+          <td class="c_input"><input type="checkbox" id="i_originTop"></td>
+        </tr>
+        <tr>
+          <td class="c_label">計算する世代(2～30)</td>
+          <td class="c_input"><input type="number" class="c_iform" id="i_generation" value="30" min="2" max="30"></td>
+        </tr>
+        <tr>
+          <td class="c_label">計算パターン数(1～100(万回))</td>
+          <td class="c_input"><input type="number" class="c_iform" id="i_numPattern" value="10" min="1" max="100">
+            <label for="i_seed"></label></td>
+        </tr>
+      </table>
+    </details>
+
+    <details>
+      <summary>設定の解説</summary>
+      <div class="c_noteTitle">天皇の子の数</div>
+      <div class="c_note">小数点で指定できます（2.5なら1/2の確率で子供が2人か3人になります）。多いほど男子が生まれる確率が高まり、4人以上だとかなり安定して継承できます。今の日本では子供が１～３人の家庭が多いですが、昭和初期だと５～６人いる家庭が普通でした。不妊などの理由で子を持たない天皇も出てくるでしょうから、子を産む数より少なめの数を指定したほうがよいです。側室制度（一夫多妻制）や代理母出産などを採用すれば多数の子を持ちやすいですが、現在の日本の価値観では国民の理解は得にくそうです。また、多くの子を産むことは皇族の方々にとって喜びであると同時にプレッシャーかもしれません。</div>
+      <div class="c_noteTitle">男子の割合</div>
+      <div class="c_note">生まれた子が男子である割合です。自然出産では統計的に男子が51.3%程度なので初期値にしています。この値は産み分け技術により高めることが可能です。「産み分け」で検索すると産み分け指導をしている病院の情報を得られますが、70～80％の確率で男子を産めるとのことです。産み分けをすることで、子供が少なくても男子の数を増やすことが可能です。しかし、皇族が男子ばかりになるのは問題でしょうし、皇族の方々にとって産み分けは心身ともに負担であると思います。なお、日本では規制されていますが着床前診断という方法を使うと100％男子を産み分けることが可能です。アメリカでは規制されていませんし、将来的には日本でも少子化対策を兼ねて解禁できるかもしれません（産み分けできるならもう一人産みたいと思う一般ご夫婦は少なくないと思います）。</div>
+      <div class="c_noteTitle">遡る世代の上限</div>
+      <div class="c_note">このシミュレーターでは子供がすべて女子の場合、先祖をさかのぼって親戚の男系男子を探します。たとえば甥（兄弟の息子）がいるときは（新天皇から見て）祖父の代まで2代さかのぼります。何代までさかのぼって男系男子を探すかを指定します。この数が多いほど親戚が増えて継承しやすくなりますが、あまり遠い親戚が新しい天皇になると国民が親しみを持てない可能性があります。感覚的には3代程度、多くとも歴代で最も遡った（継体天皇）5代以下が望ましいと思います。なお、この数字を増やすことは宮家を増やすこと、遠縁の皇族を増やすことに相当します。遠縁であっても皇族として活動していれば国民も親しみを持てるかもしれません。また、子供や男子の割合を増やすことに比べると皇族の方々の心身の負担は少ないでしょう。なお、天皇と近縁の女性皇族（たとえば愛子様）が遠縁の男系皇族と結婚すれば親しみと男系とを両立できるという考えもあります。</div>
+      <div class="c_noteTitle">初代以前には遡らない</div>
+      <div class="c_note">先祖をさかのぼるときにシミュレーション上の初代の天皇以前に遡らないときはチェックをつけてください。チェックを外すと遠い将来の継承の安定性を見ることができます。チェックをつけると、近未来に旧皇族の復帰なしで悠仁様の子孫が皇位を継承できる確率を調べることができます。</div>
+      <div class="c_noteTitle">計算する世代</div>
+      <div class="c_note">何世代先までの系図を作るかを指定します。おおよそ千年の30世代を初期値にしています。少ない世代のほうが継承成功率は高まります。10代とか20代とかもっと短い世代で検討してよいかもしれませんが、天皇の歴史の長さを考えると（神話時代を含めると2600年、実在が確実な天皇でも1600年）、千年は目標にしたいところです。</div>
+      <div class="c_noteTitle">計算パターン数</div>
+      <div class="c_note">指定した条件で何回系図を作るかを指定します。回数を増やすと結果の誤差が小さくなりますが、計算時間が増えます。初期値の10万回の場合、成功率は経験的に最大±0.3％程度の誤差があります。本当は厳密な確率の計算式を見出せそうですが、私がそれを考えるより何万回も計算しちゃったほうが速いので、ご不便おかけしますがご了承ください。</div>
+    </details>
+
+    <h3>継承成功率</h3>
+    <div id="c3_pie"></div>
+    <div id="i_seikouritsu" class="c_caption">30代継承成功率</div>
+    <div id="c3_hist"></div>
+    <div class="c_caption">継承成功時の最高遡り数(代)</div>
+
+    <div id="i_statStat" class="c_result">確率情報</div>
+
+    <details>
+      <summary>成功率の解説</summary>
+      <div class="c_noteTitle">30代継承成功率</div>
+      <div class="c_note">男系天皇を30代継承できる確率です。どの程度の成功率を目標とすべきなのか私にも判断が難しいです。50％以上で十分かもしれませんし、国家の大事であるから99％以上を目指すべきかもしれません。なお、継承が失敗した場合も天皇が断絶するわけではなく、「遡る世代の上限」より遠縁の男系男子を天皇とすることで皇位は継承できます。</div>
+      <div class="c_noteTitle">継承成功時の最高遡り数</div>
+      <div class="c_note">系図を作ったときにもっとも先祖をさかのぼった世代数を横軸、10万回系図を作った時のその頻度を縦軸の棒グラフで示します。継承に成功した系図のみ対象にしています。左側の棒が長いほど近縁で継承できているので望ましい状態です。</div>
+      <div class="c_noteTitle">平均最高遡り数</div>
+      <div class="c_note">系図を作ったときにもっとも先祖をさかのぼった世代数の平均です。継承に成功した系図のみ対象にしています。数字が1に近いほど近縁で継承できているので望ましい状態です。</div>
+      <div class="c_noteTitle">嫡子継承率</div>
+      <div class="c_note">系図を作ったときに（甥などの親戚でなく）息子が皇位を継承した割合です。継承に成功した系図のみ対象にしています。数字が大きいほど近縁で継承できているので望ましい状態です。</div>
+    </details>
+    </div>
+    </div>
+
+    <div class="c_keizu">
+    <div class="c_keizuInside">
+      <h3>系図の例</h3>
+    <table>  
+      <tr>
+        <td class="c_label" id="i_dispPattern">表示系図パターン(1～100000)</td>
+        <td class="c_input"><input type="number" class="c_iform" id="i_pattern" value="1" min="1" max="1000000"></td>
+      </tr>
+      <tr>
+      <td class="c_label">直系以外は隠す</td>
+      <td class="c_input"><input type="checkbox" id="i_hideBranch"></td>
+    </tr>
+    </table>
+    <div id="i_stat" class="c_result">
+      継承
+    </div>
+
+    <div class="c_networkOutside">
+    <div id="mynetwork"></div>
+    </div>
+    <div id="i_copyright" class="c_note">
+      (C)fujas 2021 確率的に想定される系図のほんの一例です。
+    </div>
+
+    <details>
+      <summary>系図の解説</summary>
+      <div class="c_noteTitle">表示系図パターン</div>
+      <div class="c_note">10万個作った系図のうち、表示する系図のパターン番号を指定します。プログラム的には、この値をランダムシードとして系図を生成しています。</div>
+      <div class="c_noteTitle">直系以外は隠す</div>
+      <div class="c_note">チェックマークをつけると、天皇とその直系の先祖のみを表示します。</div>
+      <div class="c_noteTitle">系図</div>
+      <div class="c_note">濃い青が天皇、薄い青は天皇ではない男子皇族、緑色は天皇ではないが天皇の先祖である男子皇族、ピンク色が女子皇族です。起点となるのは「未来の架空の天皇」であり、その天皇まで同じ条件で継承されていると仮定します。マウスホイールやピンチ操作で図を拡大できます。</div>
+    </details>
+    </div>
+    </div>
+
+    </div>
+
+
+      <details>
+        <summary class="c_kousatsu">シミュレーション結果の考察</summary>
+        <div class="c_note">このシミュレーターを使い、いくつかの条件（ただし、初代以前にさかのぼる設定）で成功率を計算してみました。その結果を示します。</div>
+
+        <div class="c_noteTitle">子供2人のとき</div>
+        <div class="c_image"><img class="c_imgsize" src="image/2children.PNG"></div>
+        <div class="c_note">子供を2人、男子の割合を51.3% としたときの成功率のグラフです。子供が2人というのは現在の日本国民の生活様式に近いのですが、遡り数を10としても2割程度の成功率なので、この条件での継承は難しそうです。</div>
+
+        <div class="c_noteTitle">子供3人のとき</div>
+        <div class="c_image"><img class="c_imgsize" src="image/3children.PNG"></div>
+        <div class="c_note">子供を3人、男子の割合を51.3% としたときの成功率のグラフです。遡り数が3でも成功率46% と、子供2人と比べると格段に高くなります。長期間の安定した継承には不安が残る気がします。</div>
+
+        <div class="c_noteTitle">子供4人のとき</div>
+        <div class="c_image"><img class="c_imgsize" src="image/4children.PNG"></div>
+        <div class="c_note">子供を4人、男子の割合を51.3% としたときの成功率のグラフです。遡り数が3でも成功率は90% 近く、長期間安定して継承できる印象です。</div>
+
+        <div class="c_noteTitle">産み分けするとき</div>
+        <div class="c_image"><img class="c_imgsize" src="image/umiwake.PNG"></div>
+        <div class="c_note">子供を2人、男子の割合を75% としたときの成功率のグラフです。男子が生まれやすいように産み分けをするパターンです。遡り数が3でも成功率は70% 近く、かなり安定して継承できる印象です。子供の数や側室制度に対する我々の価値感は将来的にも変わる可能性は低いと思いますが、産み分けに対する価値観は変わる可能性があると思います。その場合は男系での皇位継承が容易なものになりそうです。</div>
+
+        <div class="c_noteTitle">まとめ</div>
+        <div class="c_note">現代の我々の価値観で判断すると、男系で皇位を継承することは簡単ではないですが、不可能でもない印象です。不可能でないのなら歴史を尊重して男系で頑張るべきかもしれませんし、無理せず継承できたほうがよいと考えるなら女系を認めたほうが楽になれて良いかもしれません。男系で皇位継承できるのか？女系を認めるしかないのか？を自分で確かめたくてこのシミュレーターを作りましたが、答えを出すのは難しいですね。私たちが現在の価値観で決めるのではなく、100年後の日本人が男系・女系どちらかを選べるように手を打っておくのがよいかもしれません。</div>
+
+        <div class="c_noteTitle">今後の課題</div>
+        <div class="c_note">宮家を増やした場合のシミュレーションも計画中です。ただ、現在の旧皇族の方々は（明治天皇や昭和天皇の女系の子孫の方もいらっしゃいますが）男系では20代も遡らないと歴代の天皇にたどり着きません。遡り数を基準にしたシミュレーションが妥当なのか悩ましいところです。</div>
+       
+      </details>
+
+      <footer>
+        <div id="i_note" class="c_note c_footer">
+
+      <details>
+      <summary>参考</summary>
+      <ol>
+        <li><a href="https://www.youtube.com/watch?v=fE9F_IrvxBA" target="_blank">皇位継承問題とは？（社會部部長）</a>　皇位継承と男系・女系についてわかりやすく解説している動画。おすすめ。</li>
+        <li><a href="https://www.kunaicho.go.jp/about/kosei/keizu.html" target="_blank">歴代天皇の系図（宮内庁）</a>　初代神武天皇から今上天皇（現在の天皇）までの公式な系図です。</li>
+        <li><a href="https://ja.wikipedia.org/wiki/%E7%9A%87%E4%BD%8D%E7%B6%99%E6%89%BF%E5%95%8F%E9%A1%8C" target="_blank">皇位継承問題の解説（Wikipedia）</a>　皇位継承問題について公平な観点で詳しく解説されています。</li>
+        <li><a href="http://ore-dmng.jp/ore/lra/prob_dankei.html" target="_blank">確率論から見た男系継承（Tomocci様）</a>　男系での継承確率を計算した記事。本シミュレーターでは、子供2人, 男子50％, 遡る世代6, 初代以前に遡らないon, 計算する世代6 の条件で同じ結果になります。</li>
+        <li><a href="http://waqoo.blog16.fc2.com/blog-entry-83.html" target="_blank">男系存続の確率論（和の空間様）</a>　複数皇族での継承の確率を計算しています。</li>
+        <li><a href="https://www.a-takamori.com/post/201013" target="_blank">男系継続の確率計算（高森明勅様）</a>　遡る世代 1 での計算例。</li>
+        <li>「ビジュアル百科 写真と図解でわかる！ 天皇〈125代〉の歴史」（山本博文監修、西東社：書籍）　歴代天皇をカラー図解で解説した天皇の歴史の入門書です。</li>
+        <li><a href="https://www.umiwake.jp/boy" target="_blank">産み分けネット 男の子希望（杉山産婦人科）</a>　産み分け指導をしている産婦人科のサイトです。73% の確率で男子が生まれているとのこと。</li>
+      </ol>
+      </details>
+
+      <details>
+        <summary>著作権</summary>
+        (C)fujas 2021 本サイトとスクリプトはfujasの著作物です。利用は無償で自由ですが、ソースコードを許可なく転載・複製することを禁じます。
+      ただし、今後ライセンス形態を変えるかもしれません。
+      グラフおよび系図は本サイト著作者の許可なく自由に転載可能です。
+      ただし、系図については図の近くに「(C)fujas 2021 確率的に想定される系図のほんの一例です」と明記してください。なお、本サイトの更新履歴は<a href="https://github.com/fujas/keizu" target="_blank">こちらのGitHubサイト</a>から閲覧可能です。私は怪しい者ではございません（笑）。
+      </details>
+
+      <details>
+        <summary>作者自己紹介</summary>
+        私 fujas は普段はC/C++で仕事をしているフリーのエンジニアです。皇位継承になんとなく興味をもったのですが、問題の議論にあまり数値が出てこないことに危機を感じ、趣味でこのシミュレーターを作ってみました。勉強不足なので間違いや不適切な表現が多々あると思います。ご意見ご要望は githubfujas @gm ail.c om までお気軽にご連絡ください（スペースを省いたものがメールアドレス）。ちょっとしたお仕事のお誘いもお待ちしております。
+      </details>
+
+    </div>
+    <div id="i_note" class="c_note c_footer">
+    </div>
+    </footer>
+
+    <script src="lib/jquery-3.5.1.slim.min.js"></script>
+    <script type="text/javascript" src="app/keizu_main.js"></script>
+  
+  </body>
+</html>
