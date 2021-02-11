@@ -203,15 +203,35 @@ function forwardTrackPrince(person, stat) {
 */
 
 function createNextGeneration(prevs, nexts, stat){
+  nexts.length = 0;
   let nextInd = 0;
+  // 皇族内の各男子において
   for (let prev of prevs){
     if (prev != null){
+      // 子供を生成
       prev.createChildren();
-      nexts[nextInd] = prev.getChilds()[0];
-      nextInd++;
+      // 各子供について
+      for (let child of prev.getChilds()){
+        // 次世代の皇族枠がいっぱいなら何もしない
+        if (nextInd >= g_Params.numFamilyMax){
+          break;
+        }
+        // その子供が男子なら次世代皇族に追加
+        if (child.male){
+          nexts[nextInd] = child;
+          nextInd++;
+        }
+      }
     }
   }
-  return true;
+  // 次世代皇族が一人以上なら
+  if (nextInd > 0){
+    // 最初に設定された男子は天皇になる
+    nexts[0].emperor = EmperorKind.Emperor;
+    return true;
+  }
+  // 次世代皇族が０なら継承失敗
+  return false;
 }
 
 // 系図を作成
