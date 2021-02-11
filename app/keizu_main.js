@@ -77,13 +77,14 @@ function getNodeAndEdgeRecurs(person, nodeArr, edgeArr, top) {
 }
 
 // 表示メイン
-function displayMain(person) {
+function displayMain(origins) {
 
   // ツリー構造から配列データを生成
   let nodeArr = [];
   let edgeArr = [];
-  getNodeAndEdgeRecurs(person, nodeArr, edgeArr, true)
-
+  for (let i = 0; i < origins.length; i++){
+    getNodeAndEdgeRecurs(origins[i], nodeArr, edgeArr, true);
+  }
   // vis.js にデータを渡す
   var container = document.getElementById("mynetwork");
   var data = {
@@ -201,8 +202,8 @@ function displayTree(treeInfo){
   // ツリー生成中に新たにイベントが発生したら、表示しない
   if (g_UpdateCount <= 0){
     // ツリーを表示
-    let originData = treeInfo.root;
-    displayMain(originData);
+    let origins = treeInfo.roots;
+    displayMain(origins);
     // 成功か失敗かの文字を更新
     if (treeInfo.stat.success){
       $("#i_stat").text("継承成功例(最高遡り数" + treeInfo.stat.maxAnc.toFixed(0) + ")");

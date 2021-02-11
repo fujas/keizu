@@ -151,7 +151,7 @@ let Person = (function () {
 */
   // 世継ぎ取得関数
   p.getPrince = function () {
-    // 子供を作っていなければ生成
+    // 子供を生成
     this.createChildren();
     // 子供に男がいればそれを返す
     for (let child of this.child) {
@@ -228,29 +228,52 @@ function forwardTrackPrince(person, stat) {
 }
 */
 
+function createNextGeneration(prevs, nexts, stat){
+  for (let i = 0; i < prevs.length; i++){
+    if (prevs[i] != null){
+      nexts[i] = prevs[i].getPrince();
+    }
+
+  }
+  return true;
+}
+
 // 系図を作成
-function createTree(stat) {
+function createTrees(stat) {
   // 始祖を生成
   resetNewID();
-  let origin = new Person(null, getNewID(), 1, true);
-  origin.setEmperor(EmperorKind.Emperor);
+  let origins = [];
+  for (let i = 0; i < g_Params.numFamilyStart; i++){
+    origins[i] = new Person(null, getNewID(), 1, true);
+  }
+  origins[0].setEmperor(EmperorKind.Emperor);
 
   // １代ずつ子孫を生成（1度のforward呼び出しでもできそうだが、処理を簡潔にするため分ける）
-  let person = origin;
+  let prevs = origins;
+  let nexts = [];
+  let nexts2 = [];
   for (let i = 0; i < g_Params.generation - 1; i++) {
-    let prince = forwardTrackPrince(person, stat);
-    if (prince == null) {
+    if (!createNextGeneration(prevs, nexts, stat)){
       stat.success = false;
       break;
     }
-    if (prince.getParent() == person){
-      stat.numNoAnc++;  // 親から継承できたときの統計情報
+    //if (prince.getParent() == person){
+    //  stat.numNoAnc++;  // 親から継承できたときの統計情報
+    //}
+    //prince.setEmperor(EmperorKind.Emperor);  // 天皇フラグを設定
+    //setFlagToEmperorParents(prince);   // 天皇の先祖にフラグを設定
+
+    if (i == 0){        // 最初はoriginsを上書きしないようにnexts2を設定
+      prevs = nexts;
+      nexts = nexts2;
     }
-    prince.setEmperor(EmperorKind.Emperor);  // 天皇フラグを設定
-    setFlagToEmperorParents(prince);   // 天皇の先祖にフラグを設定
-    person = prince;
+    else{               // それ以降はswap
+      let tmp = prevs;
+      prevs = nexts;
+      nexts = tmp;
+    }
   }
-  return origin;
+  return origins;
 }
 
 // ********** 統計情報を計算 **********
@@ -304,12 +327,11 @@ self.addEventListener('message', function(params) {
   g_Params = params.data;
   let stat = new TreeStat();
 
-  // ツリーを1個生成
+  // ツリー群を1回生成
   resetRnd(g_Params.pattern);
-  let origin = createTree(stat);
-  let rootParent = findRoot(origin);
+  let origins = createTrees(stat);
   //処理結果を送信
-  let treeInfo = { root: rootParent, stat: stat };
+  let treeInfo = { roots: origins, stat: stat };
   let retVal = { type: 0, tree:treeInfo };
   self.postMessage(retVal);
 
