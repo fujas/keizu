@@ -21,9 +21,9 @@ function StatisticsParams(){
   this.noAnc = 0;
   this.currIndex = 0;
   this.updateProgress = false;
-  for (let i = 0; i < g_Params.ancLimit; i++){
-    this.maxAncs[i] = 0;
-  }
+  //for (let i = 0; i < g_Params.ancLimit; i++){
+  //  this.maxAncs[i] = 0;
+  //}
 }
 let g_Statistics;
 let g_Params;
@@ -98,7 +98,7 @@ function defineNumChild() {
 // 表示枝刈用フラグ
 const EmperorKind = {
   Normal: 0,       // 天皇ではない人
-  EmperorParent: 1,   // 天皇ではないがその先祖の男
+  EmperorParent: 1,   // 天皇ではないがその先祖の男子
   Emperor: 2          // 天皇
 }
 // 人物クラス
@@ -111,28 +111,23 @@ let Person = (function () {
     }
     // メンバ変数
     this.id = id;                   // 表示制御用ID
-    this.generation = generation;   // 世代。起点以前なら負の数になる。
+    this.generation = generation;   // 世代
     this.male = male;               // 性別(trueで男)
     this.emperor = EmperorKind.Normal;    // 表示用の、天皇かどうかのフラグ
     // メンバ変数（リンク）
     this.parent = parent;           // 父親へのポインタ
     this.child = [];                // 子供へのポインタ配列
-    // メンバ変数（内部フラグ）
-    this.childCreated = false;      // 子供を全部作ったらtrue
-    this.noFamily = false;          // 男系子孫が途絶えることが確定したらtrue
   }
   let p = Person.prototype;
 
   // Getter
   p.getParent = function () { return this.parent; }
-
   // Setter
   p.setEmperor = function (kind) { this.emperor = kind; }
-  p.setNoFamily = function () { this.noFamily = true; }
 
   // 子供生成関数
   p.createChildren = function () {
-    if (this.male && this.childCreated == false) {
+    if (this.male) {
       let currChild = this.child.length;  // 既に存在する子供の数
       let numChild = defineNumChild();    // 生まれるべき全部の子供の数
       let gene = this.generation + 1;     // １世代あとに設定
@@ -141,10 +136,9 @@ let Person = (function () {
         // 子供を生成。性別は確率で決まる
         this.child[i] = new Person(this, getNewID(), gene, defineMale());
       }
-      this.childCreated = true;
     }
   }
-
+/*
   // 親生成関数
   p.createParent = function () {
     let gene = this.generation - 1;
@@ -154,7 +148,7 @@ let Person = (function () {
     parent.createChildren();    // 自分の兄弟姉妹を生成
     return parent;
   }
-
+*/
   // 世継ぎ取得関数
   p.getPrince = function () {
     // 子供を作っていなければ生成
@@ -162,7 +156,7 @@ let Person = (function () {
     // 子供に男がいればそれを返す
     for (let child of this.child) {
       // 男系子孫が途絶えていない男だけを探す
-      if (child.male && (!child.noFamily)) {
+      if (child.male) {
         return child;
       }
     }
@@ -193,7 +187,7 @@ function setFlagToEmperorParents(emperor) {
     parent.emperor = EmperorKind.EmperorParent;
   }
 }
-
+/*
 // 生成した最も前の世代の人物を返す
 function findRoot(person) {
   let rootParent = person;
@@ -202,38 +196,8 @@ function findRoot(person) {
   }
   return rootParent;
 }
-
-// 子孫が途絶えているか不明な親までさかのぼる（必要なら親を生成）
-function backTrackPrince(person, targetGeneration, stat) {
-  let parent = person;
-  do {
-    // 設定次第では初代より遡らない
-    if (g_Params.originTop == true && parent.generation <= 1){
-      return null;
-    }
-    // 最高遡り数を統計情報に記録
-    let ancSize = targetGeneration - parent.generation;
-    stat.maxAnc = (ancSize + 1 > stat.maxAnc) ? ancSize + 1 : stat.maxAnc;
-    // 遡る限度に達していたらnullを返す
-    if (ancSize >= g_Params.ancLimit){
-        return null;
-    }
-    // 1世代遡る
-    let prev = parent;
-    parent = parent.parent;
-    if (parent == null) {
-      // 親が未定義なら生成
-      parent = prev.createParent();
-      // 親が天皇やその祖先であれば天皇の祖先フラグを付ける
-      if (prev.emperor != EmperorKind.Normal) {
-        parent.setEmperor(EmperorKind.EmperorParent);
-      }
-    }
-  } while (parent.noFamily == true);  // 子孫が途絶えている親ならさらに遡る
-
-  return parent;
-}
-
+*/
+/*
 // 1世代先の世継ぎを作る
 function forwardTrackPrince(person, stat) {
 
@@ -262,6 +226,7 @@ function forwardTrackPrince(person, stat) {
 
   return prince;
 }
+*/
 
 // 系図を作成
 function createTree(stat) {
@@ -289,7 +254,7 @@ function createTree(stat) {
 }
 
 // ********** 統計情報を計算 **********
-
+/*
 // 統計を取る
 function calcStatistics(){
   // パターン数だけツリーを生成
@@ -330,7 +295,7 @@ function calcStatistics(){
   let statStat = { ratio: successRat, max: g_Statistics.maxAnc, maxs: g_Statistics.maxAncs, child: g_Statistics.noAnc };
   return statStat;
 }
-
+*/
 // ********** イベント処理 **********
 
 // workerスレッドメイン
@@ -348,6 +313,7 @@ self.addEventListener('message', function(params) {
   let retVal = { type: 0, tree:treeInfo };
   self.postMessage(retVal);
 
+  /*
   // 続けて統計処理
   g_Statistics = new StatisticsParams();
   // 統計情報の計算
@@ -355,5 +321,5 @@ self.addEventListener('message', function(params) {
   // 結果を送信
   let retVal2 = { type: 100, statstat:statStat };
   self.postMessage(retVal2);
-  
+  */
 }, false);
