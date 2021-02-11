@@ -208,7 +208,7 @@ function displayTree(treeInfo){
     if (treeInfo.stat.success){
       $("#i_stat").text("継承成功例(最高遡り数" + treeInfo.stat.maxAnc.toFixed(0) + ")");
     }else{
-      $("#i_stat").text("継承失敗例(最高遡り数が" + "####" + "を超過)");
+      $("#i_stat").text("継承失敗例");
     }
   }
 }
@@ -232,7 +232,7 @@ function workerListener(message){
 }
 
 // UIの値を取得し、上限下限に合わせてUIの値を変更し、値を返す
-function getAndLimitValue(ctrlStr, isInt, modifyUI){
+function getAndLimitValue(ctrlStr, isInt, modifyUI, additionalMin){
   let val, min, max;
   if (isInt){
     val = parseInt($(ctrlStr).val(), 10);
@@ -253,6 +253,9 @@ function getAndLimitValue(ctrlStr, isInt, modifyUI){
   if (val < min){
     val = min;
   }
+  if (val < additionalMin){
+    val = additionalMin;
+  }
   if (modifyUI){
     $(ctrlStr).val(val);
   }
@@ -261,15 +264,15 @@ function getAndLimitValue(ctrlStr, isInt, modifyUI){
 
 // UIからのパラメータの取得
 function getParams(modifyUI) {
-  g_Params.numChild = getAndLimitValue("#i_numChild", false, modifyUI);
-  g_Params.maleRatio = getAndLimitValue("#i_maleRatio", false, modifyUI);
-  g_Params.generation = getAndLimitValue("#i_generation", true, modifyUI);
-  g_Params.numFamilyStart = getAndLimitValue("#i_numFamilyStart", true, modifyUI);
-  g_Params.numFamilyMax = getAndLimitValue("#i_numFamilyMax", true, modifyUI);
+  g_Params.numChild = getAndLimitValue("#i_numChild", false, modifyUI, 0);
+  g_Params.maleRatio = getAndLimitValue("#i_maleRatio", false, modifyUI, 0);
+  g_Params.generation = getAndLimitValue("#i_generation", true, modifyUI, 0);
+  g_Params.numFamilyStart = getAndLimitValue("#i_numFamilyStart", true, modifyUI, 0);
+  g_Params.numFamilyMax = getAndLimitValue("#i_numFamilyMax", true, modifyUI, g_Params.numFamilyStart);
   g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
-  g_Params.numPattern = getAndLimitValue("#i_numPattern", true, modifyUI);
+  g_Params.numPattern = getAndLimitValue("#i_numPattern", true, modifyUI, 0);
   g_Params.numPattern *= 10000;
-  g_Params.pattern = getAndLimitValue("#i_pattern", true, modifyUI);
+  g_Params.pattern = getAndLimitValue("#i_pattern", true, modifyUI, 0);
   if (modifyUI){
     // パターン最大値の表記と制限値を変える
     $("#i_dispPattern").text(
