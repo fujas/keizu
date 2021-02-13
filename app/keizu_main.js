@@ -93,7 +93,8 @@ function displayMain(origins) {
     nodes: nodeArr,
     edges: edgeArr,
   };
-  var options = { layout: { hierarchical: true } };
+  var options = { layout: { hierarchical: { enabled:true, treeSpacing: 30 } },
+                  physics: { enabled:false } };
   var network = new vis.Network(container, data, options);
 }
 
