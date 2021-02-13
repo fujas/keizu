@@ -63,12 +63,26 @@ function getNodeAndEdgeRecurs(person, nodeArr, edgeArr, top) {
   if (top) {
     createNode(person, nodeArr);
   }
+  // ツリーが横に広がりすぎないよう、左右並び順を交互に変える
+  let min = 0;
+  let max = person.child.length;
+  let add, i;
+  if (person.generation % 2 == 0){
+    i = min;
+    add = 1;
+  }
+  else{
+    i = max - 1;
+    add = -1;
+  }
   // 子のノードを作り、親子のエッジを作成
-  for (let child of person.child) {
+  while (i >= min && i < max) {
+    let child = person.child[i];
     if (!g_Params.hideBranch || child.emperor != EmperorKind.Normal) {
       createNode(child, nodeArr);
       createEdge(person, child, edgeArr);
     }
+    i += add;
   }
   // 各子に対して再帰呼び出し
   for (let child of person.child) {
@@ -195,7 +209,7 @@ function displayGraph(statstat){
   // 統計結果文字列
   $("#i_statStat").text(
     "平均最高遡り数: " + statstat.max.toFixed(1) + "代" +
-    "　嫡子継承率: " + statstat.child.toFixed(1) + "%");
+    "　息子継承率: " + statstat.child.toFixed(1) + "%");
 }
 
 // ********** ツリーの生成と統計処理 **********
