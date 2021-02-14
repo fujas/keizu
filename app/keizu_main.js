@@ -210,6 +210,9 @@ function displayGraph(statstat){
   $("#i_statStat").text(
     "平均最高遡り数: " + statstat.max.toFixed(1) + "代" +
     "　息子継承率: " + statstat.child.toFixed(1) + "%");
+  // 皇族総数
+  let numRoyal = g_Params.numFamilyMax * (4 + g_Params.numChild);
+  $("#i_totalRoyal").text(  numRoyal.toFixed(0) + " 名");
 }
 
 // ********** ツリーの生成と統計処理 **********
