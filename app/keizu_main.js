@@ -25,8 +25,9 @@ function Params() {
 
   this.numFamilyStart = 5;// 開始時皇族夫婦数
   this.numFamilyMax = 5;  // 最大皇族夫婦数
+  this.maxAnc = 30;       // 遠縁の上限（最高遡り数）
 
-  this.hideBranch = false; // 表示時に直系以外を隠す
+  this.hideBranch = false;// 表示時に直系以外を隠す
   this.numPattern = 1;    // 統計計算時パターン総数
 
   this.ancLimit = 10;     // 最高遡り数のグラフでの上限（固定）
@@ -289,6 +290,7 @@ function getParams(modifyUI) {
   g_Params.generation = getAndLimitValue("#i_generation", true, modifyUI, 0);
   g_Params.numFamilyStart = getAndLimitValue("#i_numFamilyStart", true, modifyUI, 0);
   g_Params.numFamilyMax = getAndLimitValue("#i_numFamilyMax", true, modifyUI, g_Params.numFamilyStart);
+  g_Params.maxAnc = getAndLimitValue("#i_maxAnc", true, modifyUI, 0);
   g_Params.hideBranch = ($('[id="i_hideBranch"]:checked').val() == "on") ? true : false;
   g_Params.numPattern = getAndLimitValue("#i_numPattern", true, modifyUI, 0);
   g_Params.numPattern *= 10000;
@@ -359,6 +361,7 @@ function applyEventFunc() {
   $("#i_pattern").bind('keyup mouseup', updateTree);
   $("#i_numFamilyStart").bind('keyup mouseup', updateTree);
   $("#i_numFamilyMax").bind('keyup mouseup', updateTree);
+  $("#i_maxAnc").bind('keyup mouseup', updateTree);
   $("#i_hideBranch").bind('keyup mouseup', updateTree);
   $("#i_numPattern").bind('keyup mouseup', updateTree);
 }

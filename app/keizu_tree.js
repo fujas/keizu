@@ -105,7 +105,7 @@ const EmperorKind = {
 let Person = (function () {
 
   // コンストラクタ
-  let Person = function (parent, id, generation, male) {
+  let Person = function (parent, id, generation, numAnc, male) {
     if (!(this instanceof Person)) {
       return new Person();
     }
@@ -114,6 +114,7 @@ let Person = (function () {
     this.generation = generation;   // 世代
     this.male = male;               // 性別(trueで男)
     this.emperor = EmperorKind.Normal;    // 表示用の、天皇かどうかのフラグ
+    this.numAnc = numAnc;           // 天皇またはその先祖までの世代数
     // メンバ変数（リンク）
     this.parent = parent;           // 父親へのポインタ
     this.child = [];                // 子供へのポインタ配列
@@ -124,18 +125,21 @@ let Person = (function () {
   p.getParent = function () { return this.parent; }
   p.getChilds = function () { return this.child; }
   p.getEmperor = function () { return this.emperor; }
+  p.getAnc = function () { return this.numAnc; }
   // Setter
   p.setEmperor = function (kind) { this.emperor = kind; }
+  p.setAnc = function (anc) { this.numAnc = anc; }
 
   // 子供生成関数
   p.createChildren = function () {
     let currChild = this.child.length;  // 既に存在する子供の数
     let numChild = defineNumChild();    // 生まれるべき全部の子供の数
     let gene = this.generation + 1;     // １世代あとに設定
+    let anc = this.numAnc + 1;          // 天皇まで1世代追加
     // 子供生成ループ。currChild >= numChild なら何もしない。
     for (let i = currChild; i < numChild; i++) {
       // 子供を生成。性別は確率で決まる
-      this.child[i] = new Person(this, getNewID(), gene, defineMale());
+      this.child[i] = new Person(this, getNewID(), gene, anc, defineMale());
     }
   }
 
@@ -178,6 +182,8 @@ function createNextGeneration(prevs, nexts, stat){
     if (prev != null){
       // 子供を生成
       prev.createChildren();
+      // 子供たちが遠縁なら皇族には追加しない
+
       // 各子供について
       for (let child of prev.getChilds()){
         // 次世代の皇族枠がいっぱいなら何もしない
@@ -206,9 +212,10 @@ function createTrees(stat) {
   resetNewID();
   let origins = [];
   for (let i = 0; i < g_Params.numFamilyStart; i++){
-    origins[i] = new Person(null, getNewID(), 1, true);
+    origins[i] = new Person(null, getNewID(), 1, 1, true);
   }
   origins[0].setEmperor(EmperorKind.Emperor);
+  origins[0].setAnc(0);
 
   // １代ずつ次世代皇族を生成
   let prevs = origins;
@@ -229,12 +236,6 @@ function createTrees(stat) {
     else{
       setFlagToEmperorParents(prince, stat);  // 親戚が天皇になったときは先祖にフラグを設定
     }
-
-    //if (prince.getParent() == person){
-    //  stat.numNoAnc++;  // 親から継承できたときの統計情報
-    //}
-    //prince.setEmperor(EmperorKind.Emperor);  // 天皇フラグを設定
-    //setFlagToEmperorParents(prince);   // 天皇の先祖にフラグを設定
 
     if (i == 0){        // 最初はoriginsを上書きしないようにnexts2を設定
       prevs = nexts;
