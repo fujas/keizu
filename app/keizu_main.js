@@ -1,8 +1,7 @@
 //
-// 皇位継承シミュレーター (C)Github/fujas 2020
+// 皇位継承シミュレーター (C)Github/fujas 2020-2021
 //
 // 天皇を男子で継承するときの系図を、指定の条件でシミュレーションして作図します。
-// 系図の起点は「未来の架空の天皇」であり、その天皇まで同じ条件で継承されたものと仮定します。
 //
 
 // ************ 共通 **********
@@ -209,7 +208,7 @@ function displayGraph(statstat){
 
   // 統計結果文字列
   $("#i_statStat").text(
-    "平均最高遡り数: " + statstat.max.toFixed(1) + "代" +
+    "平均最高遠縁: " + statstat.max.toFixed(1) + "代" +
     "　息子継承率: " + statstat.child.toFixed(1) + "%");
   // 皇族総数
   let numRoyal = g_Params.numFamilyMax * (4 + g_Params.numChild);
@@ -227,7 +226,7 @@ function displayTree(treeInfo){
     displayMain(origins);
     // 成功か失敗かの文字を更新
     if (treeInfo.stat.success){
-      $("#i_stat").text("継承成功例(最高遡り数" + treeInfo.stat.maxAnc.toFixed(0) + ")");
+      $("#i_stat").text("継承成功例(最高遠縁" + treeInfo.stat.maxAnc.toFixed(0) + "代)");
     }else{
       $("#i_stat").text("継承失敗例");
     }
