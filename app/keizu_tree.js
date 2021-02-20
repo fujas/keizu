@@ -148,6 +148,28 @@ let Person = (function () {
 
 // ********** １世代先の世継ぎを生成する関数群 **********
 
+// 各皇族の天皇までの遡り数を計算
+function recalcAncToPerson(person) {
+  let parent = person;
+  let numAnc = 1;
+  while (1) {
+    // 親がいない、またはすでに天皇か天皇の祖先なら処理終了。
+    parent = parent.getParent();
+    if (parent == null || parent.emperor != EmperorKind.Normal) {
+      break;
+    }
+    numAnc++;
+  }
+  person.setAnc(numAnc);
+}
+function recalcAncToNexts(nexts) {
+  for (let person of nexts){
+    if (person != null && person.emperor != EmperorKind.Emperor){
+      recalcAncToPerson(person);
+    }
+  }
+}
+
 // 天皇の先祖にフラグを付ける
 function setFlagToEmperorParents(emperor, stat) {
   // emperorが天皇であるかチェック。
@@ -180,20 +202,21 @@ function createNextGeneration(prevs, nexts, stat){
   // 皇族内の各男子において
   for (let prev of prevs){
     if (prev != null){
-      // 子供を生成
-      prev.createChildren();
-      // 子供たちが遠縁なら皇族には追加しない
-
-      // 各子供について
-      for (let child of prev.getChilds()){
-        // 次世代の皇族枠がいっぱいなら何もしない
-        if (nextInd >= g_Params.numFamilyMax){
-          break;
-        }
-        // その子供が男子なら次世代皇族に追加
-        if (child.male){
-          nexts[nextInd] = child;
-          nextInd++;
+      // 男子がが近縁なら
+      if (prev.getAnc() < g_Params.maxAnc){
+        // 子供を生成
+        prev.createChildren();
+        // 各子供について
+        for (let child of prev.getChilds()){
+          // 次世代の皇族枠がいっぱいなら何もしない
+          if (nextInd >= g_Params.numFamilyMax){
+            break;
+          }
+          // その子供が男子なら次世代皇族に追加
+          if (child.male){
+            nexts[nextInd] = child;
+            nextInd++;
+          }
         }
       }
     }
@@ -229,12 +252,14 @@ function createTrees(stat) {
     // 最初に設定された男子は天皇になる
     let prince = nexts[0];
     prince.setEmperor(EmperorKind.Emperor);
+    prince.setAnc(0);
     //
     if (prince.getParent().getEmperor() == EmperorKind.Emperor){
       stat.numNoAnc++;                  // 親から継承できたときの統計情報
     }
     else{
       setFlagToEmperorParents(prince, stat);  // 親戚が天皇になったときは先祖にフラグを設定
+      recalcAncToNexts(nexts);                // 各皇族の天皇までの遡り数を再計算
     }
 
     if (i == 0){        // 最初はoriginsを上書きしないようにnexts2を設定
