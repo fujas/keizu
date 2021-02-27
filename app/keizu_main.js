@@ -20,6 +20,7 @@ function Params() {
   this.pattern = 1;       // 乱数シード
   this.numChild = 1;      // 子供の数
   this.maleRatio = 1;     // 男子が生まれる割合％
+  this.liveRatio = 1;     // 男女問わず子を残す割合％
   this.generation = 1;    // 生成する世代の数
 
   this.numFamilyStart = 5;// 開始時皇族夫婦数
@@ -286,6 +287,7 @@ function getAndLimitValue(ctrlStr, isInt, modifyUI, additionalMin){
 function getParams(modifyUI) {
   g_Params.numChild = getAndLimitValue("#i_numChild", false, modifyUI, 0);
   g_Params.maleRatio = getAndLimitValue("#i_maleRatio", false, modifyUI, 0);
+  g_Params.liveRatio = getAndLimitValue("#i_liveRatio", false, modifyUI, 0);
   g_Params.generation = getAndLimitValue("#i_generation", true, modifyUI, 0);
   g_Params.numFamilyStart = getAndLimitValue("#i_numFamilyStart", true, modifyUI, 0);
   g_Params.numFamilyMax = getAndLimitValue("#i_numFamilyMax", true, modifyUI, g_Params.numFamilyStart);
