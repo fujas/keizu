@@ -86,6 +86,10 @@ function defineMale() {
 
 // 子供の数の決定関数
 function defineNumChild() {
+  // 不慮の事故や不妊などで子を残せないときは0人
+  if (g_Params.liveRatio < g_myRnd.get() * 100){
+    return 0;
+  }
   // 小数点も考慮。2.5なら2人か3人。
   let numInt = Math.floor(g_Params.numChild);
   let numDecimal = g_Params.numChild - numInt;

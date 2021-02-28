@@ -25,7 +25,7 @@ function Params() {
 
   this.numFamilyStart = 5;// 開始時皇族夫婦数
   this.numFamilyMax = 5;  // 最大皇族夫婦数
-  this.maxAnc = 30;       // 遠縁の上限（最高遡り数）
+  this.maxAnc = 30;       // 遠縁の上限（最大遡り数）
 
   this.hideBranch = false;// 表示時に直系以外を隠す
   this.numPattern = 1;    // 統計計算時パターン総数
@@ -134,7 +134,7 @@ function displayGraphProgress(progress){
     }
     let chart = c3.generate(data);
 
-    // 最高遡り数ヒストグラム
+    // 最大遡り数ヒストグラム
     let data2 = {
       bindto: '#c3_hist',
       data: {
@@ -177,7 +177,7 @@ function displayGraph(statstat){
   // キャプション
   $("#i_seikouritsu").text(g_Params.generation.toFixed(0) + "代継承成功率");
 
-  // 最高遡り数ヒストグラム
+  // 最大遡り数ヒストグラム
   let data2 = {
     bindto: '#c3_hist',
     data: {
@@ -209,10 +209,10 @@ function displayGraph(statstat){
 
   // 統計結果文字列
   $("#i_statStat").text(
-    "平均最高遠縁: " + statstat.max.toFixed(1) + "代" +
+    "平均最大遠縁: " + statstat.max.toFixed(1) + "代" +
     "　息子継承率: " + statstat.child.toFixed(1) + "%");
   // 皇族総数
-  let numRoyal = g_Params.numFamilyMax * (4 + g_Params.numChild);
+  let numRoyal = g_Params.numFamilyMax * (4 + (g_Params.numChild * g_Params.liveRatio / 100.0));
   $("#i_totalRoyal").text(  numRoyal.toFixed(0) + " 名");
 }
 
@@ -227,7 +227,7 @@ function displayTree(treeInfo){
     displayMain(origins);
     // 成功か失敗かの文字を更新
     if (treeInfo.stat.success){
-      $("#i_stat").text("継承成功例(最高遠縁" + treeInfo.stat.maxAnc.toFixed(0) + "代)");
+      $("#i_stat").text("継承成功例(最大遠縁" + treeInfo.stat.maxAnc.toFixed(0) + "代)");
     }else{
       $("#i_stat").text("継承失敗例");
     }
@@ -358,6 +358,7 @@ function applyEventFunc() {
   // 各パラメーターの変更イベント
   $("#i_numChild").bind('keyup mouseup', updateTree);
   $("#i_maleRatio").bind('keyup mouseup', updateTree);
+  $("#i_liveRatio").bind('keyup mouseup', updateTree);
   $("#i_generation").bind('keyup mouseup', updateTree);
   $("#i_pattern").bind('keyup mouseup', updateTree);
   $("#i_numFamilyStart").bind('keyup mouseup', updateTree);
