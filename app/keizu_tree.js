@@ -60,8 +60,8 @@ let g_myRnd;
 function resetRnd(seed){
   // パターンIDを乱数シードにする
   g_myRnd = new Random(seed);
-  // シード設定直後は偏りが多いので何回か乱数生成
-  for(let i = 0; i < 10; i++){
+  // シード設定直後は偏りが多いので、たくさん乱数生成
+  for(let i = 0; i < 100; i++){
     g_myRnd.get();
   }
 }
