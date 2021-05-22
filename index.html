@@ -21,7 +21,7 @@
         </div>
         <details>
           <summary>解説と使い方</summary>
-          <div class="c_note">このシミュレーターでは、指定した「子供の数」と「皇族夫婦数」で男系天皇を30代継続できる確率を計算します。具体的には、子供の性別は乱数で決めつつ、30代続く系図を5万回作ります。系図を作る過程で次世代の子供がすべて女子であれば継承が失敗したものとします。5万回系図を作った中で、30代継承できた割合を継承成功率としています。兄弟間の継承は考慮していません。なお、30代・5万回の設定値は変えられます。※今後予告なく仕様を変更することがあります。特に各種の初期値を変える可能性は高いのでご注意ください。<a href="ver10/index.html">最大皇族夫婦数の設定がないVer1はこちら</a>。</div>
+          <div class="c_note">このシミュレーターでは、指定した「子供の数」と「皇族夫婦数」で男系天皇を30代継続できる確率を計算します。具体的にはモンテカルロ法を使い、子供の性別は乱数で決めつつ、30代続く系図を5万回作ります。系図を作る過程で次世代の子供がすべて女子であれば継承が失敗したものとします。5万回系図を作った中で、30代継承できた割合を継承成功率としています。兄弟間の継承は考慮していません。なお、30代・5万回の設定値は変えられます。※今後予告なく仕様を変更することがあります。特に各種の初期値を変える可能性は高いのでご注意ください。<a href="ver10/index.html">最大皇族夫婦数の設定がないVer1はこちら</a>。</div>
           <div class="c_movieTitle">
            使い方はこの動画でも解説しています。
           </div>
@@ -53,12 +53,12 @@
       <td class="c_input"><input type="number" class="c_iform" id="i_numChild" value="3.5" min="1.0" max="10.0"></td>
       </tr>
       <tr>
-      <td class="c_label">開始皇族夫婦数(1～10)</td>
-      <td class="c_input"><input type="number" class="c_iform" id="i_numFamilyStart" value="1" min="1" max="10"></td>
+      <td class="c_label">開始皇族夫婦数(1～100)</td>
+      <td class="c_input"><input type="number" class="c_iform" id="i_numFamilyStart" value="1" min="1" max="100"></td>
       </tr>
       <tr>
-      <td class="c_label">最大皇族夫婦数(1～10)</td>
-      <td class="c_input"><input type="number" class="c_iform" id="i_numFamilyMax" value="5" min="1" max="10"></td>
+      <td class="c_label">最大皇族夫婦数(1～100)</td>
+      <td class="c_input"><input type="number" class="c_iform" id="i_numFamilyMax" value="5" min="1" max="100"></td>
       </tr>
       <tr>
       <td class="c_label">想定皇族総数</td>
@@ -201,7 +201,7 @@
       <details>
       <summary>参考</summary>
       <ol>
-        <li><a href="https://youtu.be/OqBcF3Wtx_8" target="_blank">皇位継承問題ってなあに？（fujas）</a>　皇位継承と男系・女系についてわかりやすく解説しました。</li>
+        <li><a href="https://www.nicovideo.jp/watch/sm38576850" target="_blank">皇位継承問題ってなあに？（fujas）</a>　皇位継承と男系・女系についてわかりやすく解説しました。</li>
         <li>「ビジュアル百科 写真と図解でわかる！ 天皇〈125代〉の歴史」（山本博文監修、西東社：書籍）　歴代天皇をカラー図解で解説した天皇の歴史の入門書です。</li>
         <li><a href="https://www.kunaicho.go.jp/about/kosei/keizu.html" target="_blank">歴代天皇の系図（宮内庁）</a>　初代神武天皇から今上天皇（現在の天皇）までの公式な系図です。</li>
         <li><a href="https://www.kantei.go.jp/jp/singi/kousitu/dai4/4siryou1.pdf" target="_blank">皇族制度（政府資料）</a>　皇族の範囲について、歴史も併せてまとめられた資料です。</li>
