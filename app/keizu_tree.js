@@ -26,6 +26,7 @@ function StatisticsParams(){
 }
 let g_Statistics;
 let g_Params;
+let g_IsTest = false;
 
 // ********** シード付き乱数 **********
 // "JavaScriptで再現性のある乱数を生成する + 指定した範囲の乱数を生成する" を参考にさせていただきました。
@@ -298,7 +299,7 @@ function calcStatistics(){
       g_Statistics.noAnc += stat.numNoAnc;
     }
     // １％ごとに進捗情報をメインスレッドにポスト
-    if (i % percentNum == 0){
+    if (!g_IsTest && (i % percentNum == 0)){
       let percent = i / percentNum;
       if (percent >= 1 && percent <= 99){
         let retVal = { type: percent };
