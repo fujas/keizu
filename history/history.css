@@ -1,0 +1,6 @@
+@charset "UTF-8";
+
+/* 全体のレイアウト（縦長画面）*/
+@media (max-width: 700px){
+    .c_image img { width: 100%; }
+}
