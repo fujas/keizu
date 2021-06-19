@@ -4,4 +4,6 @@
 
 [シミュレーターのメインページはこちら](https://fujas.github.io/keizu/index.html)
 
+本ソフトウェアはMITライセンスのオープンソースです。
+
 (C)fujas 2021 
